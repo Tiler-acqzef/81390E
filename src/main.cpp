@@ -495,7 +495,7 @@ void Drive_UserControl()
 float position = 0;
 void LIFTWork(){
   if(position == 1){
-    targetA = 14;
+    targetA = 13;
     Rotatedown.open();
     RotateUP.close();
     position = 0;
@@ -885,17 +885,24 @@ void usercontrol(void)
 
       // }
       if(Controller.ButtonL2.pressing()){
-        LArm.spin(fwd,60,pct);
-        RArm.spin(fwd,60,pct);
+        LArm.spin(fwd,50,pct);
+        RArm.spin(fwd,50,pct);
         a = false;
 
       }else if (Controller.ButtonL1.pressing()){
-        LArm.spin(reverse,60,pct);
-        RArm.spin(reverse,60,pct);
+        LArm.spin(reverse,50,pct);
+        RArm.spin(reverse,50,pct);
         a = false;
       }else if(a == false){
+        if(Arm.velocity(dps)>=20){
+        LArm.stop(coast);
+        RArm.stop(coast);
+          wait(20, msec);
+
+        }
         LArm.stop(hold);
         RArm.stop(hold);
+
 
       }
       // if(Controller.ButtonX.pressing()){
