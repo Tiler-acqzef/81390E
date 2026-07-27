@@ -7,10 +7,10 @@ using namespace vex;
 competition Competition;
 brain Brain;
 controller Controller;
-motor Intake = motor(PORT15, ratio6_1, true);
-motor LeftArm     = motor(PORT20, ratio18_1, false);
-motor RightArm    = motor(PORT11, ratio18_1, true);
-motor LArm = motor(PORT5,ratio18_1,false);
+motor Intake = motor(PORT13, ratio6_1, true);
+motor LeftArm     = motor(PORT2, ratio18_1, false);
+motor RightArm    = motor(PORT10, ratio18_1, true);
+motor LArm = motor(PORT9,ratio18_1,false);
 motor RArm = motor(PORT4,ratio18_1,true);
 
 // motor LeftFront   = motor(PORT2, ratio6_1, true);
@@ -21,21 +21,21 @@ motor RArm = motor(PORT4,ratio18_1,true);
 // motor RightBack   = motor(PORT4, ratio6_1, false); bajBRWuab meow
 
 motor LeftFront = motor(PORT19, ratio6_1, true); //11
-motor LeftMiddle = motor(PORT18, ratio18_1, true); //12
-motor LeftBack = motor(PORT17, ratio6_1, true); //13
+motor LeftMiddle = motor(PORT21, ratio18_1, true); //12
+motor LeftBack = motor(PORT20, ratio6_1, true); //13
 motor Outake = motor(PORT21,ratio6_1,false);
-motor RightFront = motor(PORT12, ratio6_1, false); //1
-motor RightMiddle = motor(PORT13, ratio18_1, false); //4
-motor RightBack = motor(PORT14, ratio6_1, false); //14
+motor RightFront = motor(PORT11, ratio6_1, false); //1
+motor RightMiddle = motor(PORT21, ratio18_1, false); //4
+motor RightBack = motor(PORT12, ratio6_1, false); //14
 distance liftSensor = (PORT21);
 distance clawSensor = (PORT21);
-
-rotation odom = rotation(PORT11); 
-pneumatics clamp(Brain.ThreeWirePort.H);
-pneumatics doinkerR(Brain.ThreeWirePort.E);
-pneumatics RotateUP (Brain.ThreeWirePort.G);
-pneumatics Rotatedown (Brain.ThreeWirePort.F);
-inertial Gyro = inertial(PORT9);
+rotation Arm = rotation(PORT8);
+rotation odom = rotation(PORT21); 
+pneumatics clamp(Brain.ThreeWirePort.G);
+pneumatics doinkerR(Brain.ThreeWirePort.F);
+pneumatics RotateUP (Brain.ThreeWirePort.E);
+pneumatics Rotatedown (Brain.ThreeWirePort.H);
+inertial Gyro = inertial(PORT18);
 optical OpticalSensor = optical(PORT21);
 vex::aivision AIVision1(PORT21, aivision::ALL_AIOBJS);
 gps GPS = gps(PORT21);
@@ -129,41 +129,29 @@ void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, d
   double last_speed = 0;
   vex::timer timer; // Create a timer object
   timer.clear();
-  while (fabs(error) >= accuracy)
-  {
+  while (fabs(error) >= accuracy){
     heading = Gyro.rotation();
-    if (target2 > 180)
-    {
+    if (target2 > 180){
       target - 360;
-    }
-    else if (target2 < -180)
-    {
+    }else if (target2 < -180){
       target + 360;
     }
-
     x = ((RightFront.position(rev)+RightBack.position(rev))/2) * pi * dia * gearRatio;
-    //  std::cout << x << "\n"; // stope the drive
     error = target - x;
     angle_error = target2 - heading;
     speed = kp * error + kd * (error - last_error) / dt;
     turn_speed = angleP * angle_error + angleD * (angle_error - angle_last_error) / dt;
-    if (speed >= 100)
-    {
+    if (speed >= 100){
       speed = 100;
-    }
-    else if (speed <= -100)
-    {
+    }else if (speed <= -100){
       speed = -100;
     }
     if(mspeed >=0&&mspeed <= chainspeed){
     if (fabs(speed) < chainspeed )
     {
-      if (speed > 0)
-      {
+      if (speed > 0){
         speed = chainspeed;
-      }
-      else
-      {
+      }else{
         speed = (-1*chainspeed);
       }
     }
@@ -175,8 +163,7 @@ void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, d
     if(fabs(angle_error)<= aacuracy){
       target2 = target3;
     }
-    if (timer.time(vex::timeUnits::msec) >= timeLimit)
-    {
+    if (timer.time(vex::timeUnits::msec) >= timeLimit){
       break;
     }
     std::cout << x << std::endl;
@@ -1684,10 +1671,8 @@ void arcturnR(float r, float arcdeg, int timeLimit, float max_drift )
   }
   DriveBrake();
 }
-void arcturnLC(float r, float arcdeg, int timeLimit, float max_drift )
-{
+void arcturnLC(float r, float arcdeg, int timeLimit, float max_drift ){
   float heading = Gyro.rotation();
-
   float angle_last_error = 0;
   const float angleP {12};
   const float angleD {0.8};
@@ -1723,77 +1708,44 @@ void arcturnLC(float r, float arcdeg, int timeLimit, float max_drift )
   vex::timer timer;
   vex::timer errortimer; // Create a timer object
   timer.clear();
-  while (fabs(Lerror) >= accuracy || fabs(Rerror) >= accuracy)
-  {
-
+  while (fabs(Lerror) >= accuracy || fabs(Rerror) >= accuracy){
     heading = Gyro.rotation();
     Lx = LeftMiddle.position(rev) * pi * dia * gearRatio;
     Rx = RightMiddle.position(rev) * pi * dia * gearRatio;
     angle_target = (Lx * 360) / (2 * pi * r);
-
     Lerror = Ltarget - Lx;
     Rerror = Rtarget - Rx;
     angle_error = angle_target - heading;
-
-    if (angle_error > 180)
-    {
+    if (angle_error > 180){
       angle_error = angle_error - 360;
-    }
-    else if (angle_error < -180)
-    {
+    }else if (angle_error < -180){
       angle_error = angle_error + 360;
     }
-
-
-    if (fabs(Lerror) < 10 && fabs(Lerror) > 1)
-    {
+    if (fabs(Lerror) < 10 && fabs(Lerror) > 1){
       Lintergal += Lerror;
-    }
-    else
-    {
+    }else{
       Lintergal = 0;
     }
-
-
-    if (Lintergal >= 40)
-    {
+    if (Lintergal >= 40){
       Lintergal = 40;
-    }
-    else if (Lintergal <= -40)
-    {
+    }else if (Lintergal <= -40){
       Lintergal = -40;
     }
-
-  
-    if (fabs(Rerror) < 10 && fabs(Rerror) > 1)
-    {
+    if (fabs(Rerror) < 10 && fabs(Rerror) > 1){
       Rintergal += Rerror;
-    }
-    else
-    {
+    }else{
       Rintergal = 0;
     }
-
-
-    if (Rintergal >= 40)
-    {
+    if (Rintergal >= 40){
       Rintergal = 40;
-    }
-
-    else if (Rintergal <= -40)
-    {
+    }else if (Rintergal <= -40){
       Rintergal = -40;
     }
-
-
     Lspeed = Lkp * Lerror + Lkd * (Lerror - Llast_error) / dt + Lintergal * Lki;
     Rspeed = Rkp * Rerror + Rkd * (Rerror - Rlast_error) / dt + Rintergal * Rki;
     Brain.Screen.printAt(1, 20, "Lspeed = %.2f     Rspeed = %.2f  ", Lspeed, Rspeed);
     turn_speed = angleP * angle_error + angleD * (angle_error, angle_last_error) / dt;
     turn_speed = std::min(std::fabs(turn_speed), std::fabs(Lspeed) * max_drift);
-
-
-
     std::cout <<"Heading: "<< heading << '\n';
     std::cout <<"angle Error "<<angle_error<<'\n';
     std::cout <<"LSpeed: " << Lspeed << '\n';
@@ -1802,78 +1754,42 @@ void arcturnLC(float r, float arcdeg, int timeLimit, float max_drift )
     std::cout <<"Rerror: " << Rerror << '\n';
     std::cout <<"turn_speed: "<< turn_speed << '\n';
     std::cout << "\n";
-
-    if (Lspeed >= 100)
-    {
+    if (Lspeed >= 100){
       Lspeed = 100;
-    }
-    else if (Lspeed <= -100)
-    {
+    }else if (Lspeed <= -100){
       Lspeed = -100;
     }
-
-
-    if (Rspeed >= 100)
-    {
+    if (Rspeed >= 100){
       Rspeed = 100;
-    }
-    else if (Rspeed <= -100)
-    {
+    }else if (Rspeed <= -100){
       Rspeed = -100;
     }
-
-
     Lspeed = Rspeed*(Ltarget/Rtarget);
-
-
-    if (fabs(angle_error) > angle_accuracy)
-    {
+    if (fabs(angle_error) > angle_accuracy){
       errortimer.clear();
     }
-
-
-    if (fabs(Lerror) <= accuracy + 0.3 || fabs(Rerror) <= accuracy + 0.3)
-    {
+    if (fabs(Lerror) <= accuracy + 0.3 || fabs(Rerror) <= accuracy + 0.3){
       count++;
-    }
-    else
-      count = 0;
-
-
-    if (fabs(Lspeed) < 70 && Lerror > 3)
-    {
-      if (Lspeed > 0)
-      {
+    }else count = 0;
+    if (fabs(Lspeed) < 70 && Lerror > 3){
+      if (Lspeed > 0){
         Lspeed = 70;
-      }
-      else
-      {
+      }else{
         Lspeed = -70;
       }
     }
-
-
-    if (fabs(Rspeed) < 70 && Rerror > 3)
-    {
-      if (Rspeed > 0)
-      {
+    if (fabs(Rspeed) < 70 && Rerror > 3){
+      if (Rspeed > 0){
         Rspeed = 70;
-      }
-      else
-      {
+      }else{
         Rspeed = -70;
       }
     }
-
-
     drive(Lspeed-turn_speed, Rspeed+turn_speed, 10);
-
-
     Llast_error = Lerror;
     Rlast_error = Rerror;
     angle_last_error = angle_error;
-    if (timer.time(vex::timeUnits::msec) >= timeLimit)
-    {
+    if (timer.time(vex::timeUnits::msec) >= timeLimit){
       break;
     }
   }

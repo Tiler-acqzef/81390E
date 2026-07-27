@@ -2,7 +2,8 @@
 #include <cmath>
 #include "vex.h"
 #include "Drive.hpp"
-
+ 
+ bool a = false;
 
 //cmmnt
 bool isClosed = true;
@@ -99,6 +100,7 @@ void selectAuton()
 }
 
 double targetL = 2;
+double targetA = 2;
 
 enum state {    
     idle,
@@ -123,7 +125,7 @@ void toggleState() {
             break;
 
         case loading:
-            currentState = middle;
+            currentState = idle;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
@@ -136,7 +138,7 @@ void toggleState() {
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
-            targetL = 2;
+            targetL = 400;
 
             break;
         case middle:
@@ -144,7 +146,7 @@ void toggleState() {
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
-            targetL = 4;
+            targetL = 800;
 
             break;
         case high:
@@ -152,15 +154,15 @@ void toggleState() {
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
-            targetL = 6;
+            targetL = 1250;
 
             break;
 
     }
 }
 void liftControl() {
-    double kp = 0.05;
-    double kd = 0.05;
+    double kp = 0.1;
+    double kd = 0.1;
     double kg = 0;
     double lasterror = 0;
     double x = (LeftArm.position(deg)+RightArm.position(deg)/2);
@@ -170,6 +172,29 @@ void liftControl() {
     LeftArm.spin(fwd, speed, volt);
     RightArm.spin(fwd, speed, volt);
     lasterror = error;
+}
+void ArmControl() {
+  
+    double kp = 0.05;
+    double kd = 0.05;
+    double kg = 0.0;
+    double lasterror = 0;
+    double x = (Arm.position(deg));
+    double error = targetA - x;
+    double speed = error * kp+kd*(error-lasterror)+ kg;
+      // while (true){
+      // if(a==true){
+    x = (Arm.position(deg));
+    error = targetA - x;
+    speed = error * kp+kd*(error-lasterror)+ kg;
+    Brain.Screen.printAt(25,200,"speed:%.2f",(speed));
+
+
+    LArm.spin(fwd, -speed, volt);
+    RArm.spin(fwd, -speed, volt);
+    lasterror = error;
+      // }
+      // }
 }
 void doubleToggle(){
   toggleState();
@@ -467,21 +492,36 @@ void Drive_UserControl()
   RightBack.spin(fwd, right_speed , volt);
 
 }
+float position = 0;
 void LIFTWork(){
-  if(RotateUP.value()){
-  RotateUP.close();
-  Rotatedown.close();
-  wait(10,msec);
-  }
-  else{
-  RotateUP.open();
-  Rotatedown.open();
-  wait(10,msec);
+  if(position == 1){
+    targetA = 14;
+    Rotatedown.open();
+    RotateUP.close();
+    position = 0;
+    a = true;
+    } else{
+    a = false;
+
+  clamp.set(!clamp.value());
+
   }
 
 }
 void AntlerDEscore(){
+  if(position == 0){
+    targetA = 15;
+    targetL = 60;
+    RotateUP.open();
+    Rotatedown.close();
+    position = 1;
+    a = true;
+
+  } else{
+    a = false;
+
   clamp.set(!clamp.value());
+  }
 }
 
 
@@ -778,6 +818,7 @@ void pre_auton(void)
   vex::thread intakeThread(intakeControl);
 
 
+
     {
 while (true) {
   // liftControl();
@@ -806,14 +847,18 @@ void usercontrol(void)
     Intake.setVelocity(100,pct);
     Outake.setVelocity(100,pct);
     vex::thread odom(icc_tracking);
+
     //trollol lol 
     AIVision1.tagDetection(true);
-    Controller.ButtonA.pressed(LIFTWork);
-    Controller.ButtonB.pressed(AntlerDEscore);
-    Controller.ButtonDown.pressed(doinkerRtoggle);  
+    Controller.ButtonB.pressed(LIFTWork);
+    Controller.ButtonA.pressed(AntlerDEscore);
+    Controller.ButtonDown.pressed(doubleToggle); 
+    Controller.ButtonUp.pressed(toggleState); 
+    Controller.ButtonY.pressed(doinkerRtoggle); 
   
-    Controller.ButtonDown.pressed(Align);  
+    // Controller.ButtonDown.pressed(Align);  
     LeftArm.setPosition(0,deg);
+    Arm.resetPosition();
 
     
 
@@ -821,45 +866,64 @@ void usercontrol(void)
     while (true)
     {
       if(!Gyro.isCalibrating()){
-      if(Controller.ButtonL1.pressing() == true){
-        LeftArm.spin(fwd,100,pct);
-        RightArm.spin(fwd,100,pct);
-      }
-      else if(Controller.ButtonL2.pressing() == true){
-        if(LeftArm.position(deg)<7.0){
-          LeftArm.stop(hold);
-          RightArm.stop(hold);
-        }else{
-        LeftArm.spin(reverse,100,pct);
-        RightArm.spin(reverse,100,pct);
-        }
-      } else{
-        LeftArm.stop(hold);
-        RightArm.stop(hold);
-      }
-      if(Controller.ButtonX.pressing()){
-        LArm.spin(fwd,40,pct);
-        RArm.spin(fwd,40,pct);
+      // if(Controller.ButtonL1.pressing()){
+      //   LeftArm.spin(fwd,100,pct);
+      //   RightArm.spin(fwd,100,pct);
 
-      }else if (Controller.ButtonY.pressing()){
-        LArm.spin(reverse,40,pct);
-        RArm.spin(reverse,40,pct);
+      // }else if (Controller.ButtonL2.pressing()){
+      //   if (LeftArm.position(deg)<=18){
+      //   LeftArm.stop(hold);
+      //   RightArm.stop(hold);
+      //   }else{
+      //   LeftArm.spin(reverse,100,pct);
+      //   RightArm.spin(reverse,100,pct);
+      //   }
 
-      }else{
+      // }else{
+      //   LeftArm.stop(hold);
+      //   RightArm.stop(hold);
+
+      // }
+      if(Controller.ButtonL2.pressing()){
+        LArm.spin(fwd,60,pct);
+        RArm.spin(fwd,60,pct);
+        a = false;
+
+      }else if (Controller.ButtonL1.pressing()){
+        LArm.spin(reverse,60,pct);
+        RArm.spin(reverse,60,pct);
+        a = false;
+      }else if(a == false){
         LArm.stop(hold);
         RArm.stop(hold);
 
       }
+      // if(Controller.ButtonX.pressing()){
+      //   LArm.spin(fwd,40,pct);
+      //   RArm.spin(fwd,40,pct);
 
+      // }else if (Controller.ButtonY.pressing()){
+      //   LArm.spin(reverse,40,pct);
+      //   RArm.spin(reverse,40,pct);
+
+      // }else{
+      //   LArm.stop(hold);
+      //   RArm.stop(hold);
+
+      // }
     
     Brain.Screen.printAt(25,100,"x:%.2f",(x));
     Brain.Screen.printAt(25,125,"y:%.2f",(y));
     Brain.Screen.printAt(25,150,"UP:%.2f",(RotateUP.value()));
     Brain.Screen.printAt(25,175,"Down:%.2f",(Rotatedown.value()));
-      // liftControl();
+
+      liftControl();
       Drive_UserControl();
       Intake_UserControl();
+      if(a == true){
+      ArmControl();
 
+      }
 
 
     }
