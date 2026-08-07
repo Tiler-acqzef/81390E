@@ -551,10 +551,10 @@ int sign(float a){
     }
 }
 void MTP (float Tx, float Ty, double timeLimit){
-    float LKP = 0.0;
+    float LKP = 2.0;
     float LKD = 0.0;
     float LKI = 0;
-    float AKP = 1.0;
+    float AKP = 3.0;
     float AKD = 0.0;
     float AKI = 0;
     float speed =0;

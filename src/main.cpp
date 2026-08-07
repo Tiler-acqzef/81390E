@@ -101,6 +101,7 @@ void selectAuton()
 
 double targetL = 2;
 double targetA = 2;
+float cap = 100;
 
 enum state {    
     idle,
@@ -115,9 +116,10 @@ void toggleState() {
     switch(currentState){
         case idle:
             currentState = low;
-            LeftArm.setVelocity(100,pct);
-            RightArm.setVelocity(100,pct);
+            LeftArm.setVelocity(20,pct);
+            RightArm.setVelocity(20,pct);
             Intake.setVelocity(100,pct);
+            cap = 65;
             
             targetL = 0;
 
@@ -138,6 +140,8 @@ void toggleState() {
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
+            cap = 100;
+
             targetL = 400;
 
             break;
@@ -146,6 +150,7 @@ void toggleState() {
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
+            cap = 100;
             targetL = 800;
 
             break;
@@ -154,6 +159,7 @@ void toggleState() {
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
+            cap = 100;
             targetL = 1250;
 
             break;
@@ -168,9 +174,12 @@ void liftControl() {
     double x = (LeftArm.position(deg)+RightArm.position(deg)/2);
     double error = targetL - x;
     double speed = error * kp+kd*(error-lasterror)+ kg;
-
-    LeftArm.spin(fwd, speed, volt);
-    RightArm.spin(fwd, speed, volt);
+    if(speed >= cap){
+      speed = cap;
+    }
+    
+    LeftArm.spin(fwd, speed, pct);
+    RightArm.spin(fwd, speed, pct);
     lasterror = error;
 }
 void ArmControl() {
@@ -188,6 +197,7 @@ void ArmControl() {
     error = targetA - x;
     speed = error * kp+kd*(error-lasterror)+ kg;
     Brain.Screen.printAt(25,200,"speed:%.2f",(speed));
+    
 
 
     LArm.spin(fwd, -speed, volt);
@@ -197,7 +207,7 @@ void ArmControl() {
       // }
 }
 void doubleToggle(){
-  toggleState();
+  currentState = idle;
   toggleState();
 }
 void Setup_UserControl()
@@ -495,7 +505,9 @@ void Drive_UserControl()
 float position = 0;
 void LIFTWork(){
   if(position == 1){
-    targetA = 13;
+    targetA = 5;
+    targetL = 0;
+
     Rotatedown.open();
     RotateUP.close();
     position = 0;
@@ -510,8 +522,8 @@ void LIFTWork(){
 }
 void AntlerDEscore(){
   if(position == 0){
-    targetA = 15;
-    targetL = 60;
+    targetA = 5;
+    targetL = 100;
     RotateUP.open();
     Rotatedown.close();
     position = 1;
@@ -797,6 +809,7 @@ void autonomous(void)
     case 6:
     break;
     case 7:
+    Gyro.setRotation(0,deg);
     x=0;
     y=0;
     MTP(24,24,1000000);
@@ -929,7 +942,6 @@ void usercontrol(void)
       Intake_UserControl();
       if(a == true){
       ArmControl();
-
       }
 
 
