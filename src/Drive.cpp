@@ -586,19 +586,22 @@ void MTP (float Tx, float Ty, double timeLimit){
           hypot = -hypot;
           directionFlip = 180.0;
       }
+    float targetHeading =
+        atan2(errorX, ErrorY) * 180.0 / M_PI;
 
-      float targetHeading =
-          atan2(errorX, ErrorY) * 180.0 / M_PI;
+    Aerror = targetHeading - heading;
 
-      Aerror = targetHeading - directionFlip - heading;
     if(hypot<=3){
       Aerror = 0;
     }
-    if (Aerror > 180){
-      Aerror -= 360;
+
+
+    while (Aerror > 180){
+        Aerror -= 360;
     }
-    else if (Aerror < -180){
-      Aerror += 360;
+
+    while (Aerror < -180){
+        Aerror += 360;
     }
 
     // if(sign(errorX)!= xsign && sign(ErrorY)!= ysign ){
