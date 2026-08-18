@@ -7,11 +7,11 @@ using namespace vex;
 competition Competition;
 brain Brain;
 controller Controller;
-motor Intake = motor(PORT13, ratio6_1, true);
-motor LeftArm     = motor(PORT2, ratio18_1, false);
-motor RightArm    = motor(PORT10, ratio18_1, true);
-motor LArm = motor(PORT9,ratio18_1,false);
-motor RArm = motor(PORT4,ratio18_1,true);
+motor Intake = motor(PORT12, ratio6_1, true);
+motor LeftArm     = motor(PORT10, ratio18_1, false);
+motor RightArm    = motor(PORT15, ratio18_1, true);
+motor LArm = motor(PORT5,ratio18_1,false);
+motor RArm = motor(PORT6,ratio18_1,true);
 
 // motor LeftFront   = motor(PORT2, ratio6_1, true);
 // motor LeftMiddle  = motor(PORT3, ratio6_1, false);
@@ -22,27 +22,27 @@ motor RArm = motor(PORT4,ratio18_1,true);
 
 motor LeftFront = motor(PORT19, ratio6_1, true); //11
 motor LeftMiddle = motor(PORT21, ratio18_1, true); //12
-motor LeftBack = motor(PORT20, ratio6_1, true); //13
+motor LeftBack = motor(PORT18, ratio6_1, true); //13
 motor Outake = motor(PORT21,ratio6_1,false);
 motor RightFront = motor(PORT11, ratio6_1, false); //1
 motor RightMiddle = motor(PORT21, ratio18_1, false); //4
-motor RightBack = motor(PORT12, ratio6_1, false); //14
-distance liftSensor = (PORT21);
-distance clawSensor = (PORT21);
-rotation Arm = rotation(PORT8);
+motor RightBack = motor(PORT13, ratio6_1, false); //14
+distance liftSensor = (PORT7);
+distance clawSensor = (PORT7);
+rotation Arm = rotation(PORT7);
 rotation odom = rotation(PORT21); 
-pneumatics clamp(Brain.ThreeWirePort.G);
-pneumatics doinkerR(Brain.ThreeWirePort.F);
-pneumatics RotateUP (Brain.ThreeWirePort.E);
+pneumatics clamp(Brain.ThreeWirePort.E);
+pneumatics doinkerR(Brain.ThreeWirePort.G);
+pneumatics RotateUP (Brain.ThreeWirePort.F);
 pneumatics Rotatedown (Brain.ThreeWirePort.H);
-inertial Gyro = inertial(PORT18);
+inertial Gyro = inertial(PORT17);
 optical OpticalSensor = optical(PORT21);
 vex::aivision AIVision1(PORT21, aivision::ALL_AIOBJS);
 gps GPS = gps(PORT21);
 float pi = 3.14159;
 float dia = 3.25;
 float diaO = 2;
-float gearRatio = 0.75;
+float gearRatio = 0.66;
 float width = 14;
 float target2 = 0;
 float x = 0;
@@ -178,9 +178,8 @@ void inchDriveC3(float target, float timeLimit, float mspeed,bool chained, doubl
   float turn_speed = 0;
   float angleD = 0.2;
   float aacuracy = 0.5; 
-  RightFront.setPosition(0, rev);
-  RightBack.setPosition (0,rev);
-  float x = 0;
+  float prevposition = ((RightFront.position(rev)+RightBack.position(rev))/2);
+  float x = (((RightFront.position(rev)+RightBack.position(rev))/2) - prevposition) * pi * dia * gearRatio;
   float error2 = target;
   float error = target;
   float kp = 7;
@@ -251,7 +250,7 @@ void inchDriveC3(float target, float timeLimit, float mspeed,bool chained, doubl
       else if (target <0){
         Ftarget = target -2;
       }
-      x = ((RightFront.position(rev)+RightBack.position(rev))/2) * pi * dia * gearRatio;
+      x = (((RightFront.position(rev)+RightBack.position(rev))/2)-prevposition) * pi * dia * gearRatio;
       //  std::cout << x << "\n"; // stope the drive
       error = Ftarget - x;
       angle_error = target2 - heading;
@@ -284,7 +283,7 @@ void inchDriveC2(float target, float timeLimit,double mspeed , double target2, d
   float heading = 0;
   float angle_error = target2;
   float angle_last_error = 0;
-  float angleP = 2;
+  float angleP = 5;
   float turn_speed = 0;
   float angleD = 0.2;
   float aacuracy = 0.7; 
@@ -497,8 +496,8 @@ void arcturn(float target, float arcdegree, float timeLimit, int b , int c )
 void icc_tracking() {
 
     float prevHeading = Gyro.rotation() * pi / 180.0;
-    float prevLrev = 0;
-    float prevRrev = 0;
+    float prevRrev = -RightFront.position(rev);
+    float prevLrev = -LeftFront.position(rev);
     float DRight =0;
     float Dleft = 0;
 
@@ -551,11 +550,11 @@ int sign(float a){
     }
 }
 void MTP (float Tx, float Ty, double timeLimit){
-    float LKP = 2.0;
+    float LKP = 4.0;
     float LKD = 0.0;
     float LKI = 0;
-    float AKP = 3.0;
-    float AKD = 0.0;
+    float AKP = 5.0;
+    float AKD = 6.0;
     float AKI = 0;
     float speed =0;
     float ASpeed =0;
@@ -615,13 +614,13 @@ void MTP (float Tx, float Ty, double timeLimit){
       speed = speed* std::fmax(cos(Aerror*M_PI/180),0.0);
     }
 
-    if (speed >= 50)
+    if (speed >= 100)
     {
-      speed = 50;
+      speed = 100;
     }
-    else if (speed <= -50)
+    else if (speed <= -100)
     {
-      speed = -50;
+      speed = -100;
     }
 
     ASpeed = Aerror*AKP + AKD*(Aerror-Last_Aerror);
@@ -665,6 +664,199 @@ void MTP (float Tx, float Ty, double timeLimit){
   DriveBrake();
 
 }
+void TTP (float Tx, float Ty, double timeLimit,double flip){
+    float AKP = 5.0;
+    float AKD = 6.0;
+    float AKI = 0;
+    float ASpeed =0;
+    float errorX = Tx-x;
+    float ErrorY = Ty - y;
+    float heading = Gyro.rotation();  
+    float Aerror = 0;
+    float Last_Aerror = 0;
+    timer timer;
+    int xsign = sign(errorX);
+    int ysign = sign(ErrorY);
+
+
+    while (true){
+    heading = Gyro.rotation();
+    errorX = Tx-x;
+    ErrorY = Ty - y;
+    bool overshot =
+    sign(errorX) != xsign &&
+    sign(ErrorY) != ysign;
+
+      float directionFlip = 0.0;
+
+
+    float targetHeading =
+        atan2(errorX, ErrorY) * 180.0 / M_PI- flip;
+
+    Aerror = targetHeading - heading;
+
+
+
+    while (Aerror > 180){
+        Aerror -= 360;
+    }
+
+    while (Aerror < -180){
+        Aerror += 360;
+    }
+
+    // if(sign(errorX)!= xsign && sign(ErrorY)!= ysign ){
+    //   Controller.Screen.print("done");
+    //   hypot = -hypot;
+
+
+
+    ASpeed = Aerror*AKP + AKD*(Aerror-Last_Aerror);
+    
+    drive(ASpeed,ASpeed,0);
+
+    Last_Aerror = Aerror;
+
+    if(fabs(Aerror)<=0.5){
+      break;
+    }
+    if (timer.time(vex::timeUnits::msec) >= timeLimit)
+    {
+      break;
+    }
+
+      wait(10,msec);
+    }
+  Controller.Screen.print("done");
+  DriveBrake();
+
+}
+void MTPB (float Tx, float Ty, double timeLimit,double Tspeed,double Mspeed,double Acuracy ){
+    float LKP = 4.0;
+    float LKD = 0.0;
+    float LKI = 0;
+    float AKP = 5.0;
+    float AKD = 6.0;
+    float AKI = 0;
+    float speed =0;
+    float ASpeed =0;
+    float errorX = Tx-x;
+    float ErrorY = Ty - y;
+    float hypot = 0;
+    double last_hypot = 0;
+    float heading = Gyro.rotation();  
+    float Aerror = 0;
+    float Last_Aerror = 0;
+    timer timer;
+    int xsign = sign(errorX);
+    int ysign = sign(ErrorY);
+
+
+    while (true){
+    heading = Gyro.rotation();
+    errorX = Tx-x;
+    ErrorY = Ty - y;
+    hypot = -1*(sqrt(pow(errorX,2) + pow(ErrorY,2)));
+    bool overshot =
+    sign(errorX) != xsign &&
+    sign(ErrorY) != ysign;
+
+      float directionFlip = 0.0;
+
+      if (overshot) {
+          hypot = -hypot;
+          directionFlip = 180.0;
+      }
+    float targetHeading =
+        (atan2(errorX, ErrorY) * 180.0 / M_PI) - 180.0;
+
+    Aerror = (targetHeading - heading);
+
+    if(fabs(hypot)<=3){
+      Aerror = 0;
+    }
+
+
+    while (Aerror > 180){
+        Aerror -= 360;
+    }
+
+    while (Aerror < -180){
+        Aerror += 360;
+    }
+
+    // if(sign(errorX)!= xsign && sign(ErrorY)!= ysign ){
+    //   Controller.Screen.print("done");
+    //   hypot = -hypot;
+    // }
+    speed = hypot*LKP+LKD*(hypot-last_hypot);
+    if(fabs(hypot) <= 7){
+      speed = speed * cos(Aerror*M_PI/180);
+    } else{
+      speed = speed* std::fmax(cos(Aerror*M_PI/180),0.0);
+    }
+
+    if (speed >= Tspeed)
+    {
+      speed = Tspeed;
+    }
+    else if (speed <= -Tspeed)
+    {
+      speed = -Tspeed;
+    }
+    if(speed>=0){
+      if(speed<=Mspeed){
+        speed = Mspeed;
+      }
+    } else if(speed <=0){
+      if(speed >=(-1*Mspeed)){
+        speed = -1*Mspeed;
+ 
+      }
+    }
+
+    ASpeed = Aerror*AKP + AKD*(Aerror-Last_Aerror);
+    
+    drive(speed+ASpeed,speed-ASpeed,0);
+
+    Last_Aerror = Aerror;
+    last_hypot = hypot;
+    printf(
+        "x: %.2f  y: %.2f  "
+        "errorX: %.2f  errorY: %.2f  "
+        "distance: %.2f  "
+        "heading: %.2f  angleError: %.2f  "
+        "speed: %.2f  turn: %.2f  "
+        "left: %.2f  right: %.2f  "
+        "overshot: %d\n",
+        x,
+        y,
+        errorX,
+        ErrorY,
+        hypot,
+        heading,
+        Aerror,
+        speed,
+        ASpeed,
+        speed + ASpeed,
+        speed - ASpeed,
+        overshot
+    );
+    if(fabs(hypot) <=Acuracy){
+      break;
+    }
+    if (timer.time(vex::timeUnits::msec) >= timeLimit)
+    {
+      break;
+    }
+
+      wait(10,msec);
+    }
+  Controller.Screen.print("done");
+  DriveBrake();
+
+}
+
 void Align(){
     AIVision1.takeSnapshot(aivision::ALL_TAGS);
     double Tkp = 6; 
@@ -721,14 +913,14 @@ void gyroTurnF(float target, double mspeed , double accuracy , float b )
 
   double kp = 5; // 7.85;//was 6
   double speed = 0;
-  double kd = 40; // 0.65;//was 0.3
+  double kd = 70; // 0.65;//was 0.3
   double last_error = 0;
   double dt = 0.01; // reset Gyro to zero degrees
   int count = 0;
   vex::timer timer; // Create a timer object
 
   timer.clear(); // Clear any previous timer value
-  int timeLimit = 1200;
+  int timeLimit = 2100;
   while (fabs(error) >= accuracy or count <= 5)
   {
     heading = Gyro.rotation(); // measure the heading of the robot
@@ -786,12 +978,12 @@ void gyroTurnF(float target, double mspeed , double accuracy , float b )
 void gyropivotR(float target, bool direction, double accuracy ,  int timeLimit, float b )  {
   float heading = Gyro.rotation(); // initialize a variable for heading
   double error = target - heading;
-  double ki = 0.95;
+  double ki = 0.5;
   double intergal = 0;
 
-  double kp = 7; // 7.85;//was 6
+  double kp = 5; // 7.85;//was 6
   double speed = 0;
-  double kd = 0.45; // 0.65;//was 0.3
+  double kd = 70; // 0.65;//was 0.3
   double last_error = 0;
   double dt = 0.01; // reset Gyro to zero degrees
   int count = 0;
@@ -832,7 +1024,7 @@ void gyropivotR(float target, bool direction, double accuracy ,  int timeLimit, 
     }
 
     // calculate error
-    speed = kp * error + kd * (error - last_error) / dt + ki * intergal;
+    speed = kp * error + kd * (error - last_error) + ki * intergal;
     if (direction == true){
       if (speed>=0){
         speed *=-1;
@@ -865,12 +1057,12 @@ void gyropivotL(float target, bool direction, double accuracy ,  int timeLimit, 
 {
   float heading = Gyro.rotation(); // initialize a variable for heading
   double error = target - heading;
-  double ki = 0.95;
+  double ki = 0.5;
   double intergal = 0;
 
-  double kp = 7; // 7.85;//was 6
+  double kp = 5; // 7.85;//was 6
   double speed = 0;
-  double kd = 0.72; // 0.65;//was 0.3
+  double kd = 70; // 0.65;//was 0.3
   double last_error = 0;
   double dt = 0.01; // reset Gyro to zero degrees
   int count = 0;
@@ -912,7 +1104,7 @@ void gyropivotL(float target, bool direction, double accuracy ,  int timeLimit, 
     }
 
     // calculate error
-    speed = kp * error + kd * (error - last_error) / dt + ki * intergal;
+    speed = kp * error + kd * (error - last_error) + ki * intergal;
     if (direction == true){
       if (speed<=0){
         speed *=-1;

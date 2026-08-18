@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =7;
+int AutonomousMode =4;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -101,6 +101,8 @@ void selectAuton()
 
 double targetL = 2;
 double targetA = 2;
+double targetAA = 5;
+
 float cap = 100;
 
 enum state {    
@@ -142,7 +144,7 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 100;
 
-            targetL = 400;
+            targetL = 300;
 
             break;
         case middle:
@@ -182,6 +184,66 @@ void liftControl() {
     RightArm.spin(fwd, speed, pct);
     lasterror = error;
 }
+enum Astate {    
+    lowest,
+    store,
+    Slow,
+    Smiddle,
+    Shigh,
+};
+Astate Armstate = lowest;
+
+void AState() {
+    switch(Armstate){
+        case lowest:
+            Armstate = store;
+
+            cap = 65;
+            
+            targetAA = 5;
+
+
+            break;
+
+        case store:
+            Armstate = Slow;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            targetAA = 80;
+            break; // old 24
+        case low:
+            Armstate = Smiddle;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 100;
+
+          targetAA = 28;
+            break;
+        case Smiddle:
+            Armstate = Shigh;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 100;
+            targetAA = 90;
+
+            break;
+        case Shigh:
+            Armstate = lowest;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 100;
+            targetL = 120;
+
+            break;
+
+    }
+}
+
+
 void ArmControl() {
   
     double kp = 0.05;
@@ -198,7 +260,7 @@ void ArmControl() {
     speed = error * kp+kd*(error-lasterror)+ kg;
     Brain.Screen.printAt(25,200,"speed:%.2f",(speed));
     
-
+  
 
     LArm.spin(fwd, -speed, volt);
     RArm.spin(fwd, -speed, volt);
@@ -206,6 +268,34 @@ void ArmControl() {
       // }
       // }
 }
+bool Aa = false;
+void AArmControl(){
+  
+    double kp = 0.1;
+    double kd = 0.05;
+    double kg = 0.0;
+    double lasterror = 0;
+    double x = (Arm.position(deg));
+    double error = targetA - x;
+    double speed = error * kp+kd*(error-lasterror)+ kg;
+    while (true){
+      if(Aa==true){
+        break;
+      }
+    x = (Arm.position(deg));
+    error = targetAA - x;
+    speed = error * kp+kd*(error-lasterror)+ kg;
+    Brain.Screen.printAt(25,200,"speed:%.2f",(speed));
+    
+  
+
+    LArm.spin(fwd, -speed, volt);
+    RArm.spin(fwd, -speed, volt);
+    lasterror = error;
+    }
+      // }
+}
+
 void doubleToggle(){
   currentState = idle;
   toggleState();
@@ -545,6 +635,8 @@ void autonomous(void)
   float HEADING;
   vex::thread(intakeControl);
   vex::thread odom (icc_tracking);
+  // vex::thread A (AArmControl);
+
 
 
   switch (AutonomousMode)
@@ -757,69 +849,193 @@ void autonomous(void)
 
     break;
     case 4:
-    Intake.setVelocity(100,pct);
-    intakeState = 1;
-    inchDriveC2(45,2900,40,0,24,-45,16,-135);
-    inchDriveC(-14,1500,0.8,50);
+    LeftArm.resetPosition();
+    RightArm.resetPosition();
+    Intake.setVelocity(30,pct);
+    Gyro.setRotation(0,deg);
+  
+    x=0;
+    y=0;
+    doinkerR.open();
+    Rotatedown.open();
+    RotateUP.close();
+
+
+    inchDriveC3(5,450,0.6);
     DriveBrake();
+    intakeState = -1;
+    wait(500,msec);
+    doinkerR.close();
+
+
+
+    inchDriveC3(-10,750,1);
     clamp.open();
-    intakeState =0;
-    intakeState = 1;
-    Outake_state = -1;
-    wait(1100,msec);
-    Outake_state = 0;
+    wait(500,msec);
+    targetA= 80;
+    currentState = low;
+    toggleState();
+    gyroTurnF(90);
+
+    MTP(12, 4, 2000);
+    MTPB(0,12,1200,60);
+    targetA= 28;
+
+    wait(700,msec);
     clamp.close();
 
-    inchDriveC2(80,2700,60,-135,37,-180,15,-180);
-    wait(1400,msec);
-    inchDriveC(-10,1100,0.8,40);
-    gyroTurnF(135);
-    inchDriveC(-20,1200,0.8,40);
-    gyroTurnF(180);
-    inchDriveO(-74,2800,1,60);
-    gyroTurnF(-20);
-    inchDriveC(-25,1200,0.8,40);
-    gyroTurnF(0);
-    Outake_state = 1;
-    wait(2500,msec);
-    Outake_state = 0;
-    inchDriveC(38,1200,0.8,40);
-    wait(1200,msec);
-    inchDriveC(-38,1400,1,60);
-    Outake_state = 1;
-    wait(2500,msec);
-    Outake_state = 0;    
+    doinkerR.open();
+    currentState = idle;
+    toggleState();
+    targetA= 5;
+
+    wait(300,msec);
+
+
+
+    gyroTurnF(150);
+
+    inchDriveC3(20,700,0.8);
+    inchDriveC3(-5,250,1);
+
+    inchDriveC3(10,600,1);
+
+    inchDriveC3(-10,1200,1,true);
+
+    MTPB(3, 35.5, 2000,40);
+    clamp.open();
+
+
+
 
     
 
     break;
     case 5:
-    Intake.setVelocity(100,pct);
-    intakeState = 1;
-    inchDriveC2(85,3500,75,0,20,-90,10,0);
-    gyroTurnF(-100);
-    inchDriveC(-45,1200,0.8,40);
-    Outake_state =1;
-    wait(1400,msec);
-    Outake_state = 0;
-    inchDriveC(40,1500,0.6,40);
-    wait(1500,msec);
-    inchDriveC(-10,1000,1,60);
-    break;
-    case 6:
-    break;
-    case 7:
+    Intake.setVelocity(30,pct);
     Gyro.setRotation(0,deg);
     x=0;
     y=0;
-    MTP(24,24,1000000);
-    MTP(0,0,10000);
+    doinkerR.open();
+    Rotatedown.open();
+    RotateUP.close();
+
+
+    inchDriveC3(5,450,0.6);
+    DriveBrake();
+    intakeState = -1;
+    wait(500,msec);
+    doinkerR.close();
+
+
+
+    inchDriveC3(-5,250,1);
+    LIFTWork();
+    wait(200,msec);
+    targetA = 70;
+    gyroTurnF(45);
+
+    MTP(23, 7, 2000);
+    doinkerR.open();
+
+    gyroTurnF(180);
+    // targetL = 350;
+
+    inchDriveC3(20,700,0.8);
+    inchDriveC3(-5,250,1);
+    inchDriveC3(10,600,1);
+
+    MTPB(55, 14, 2000,50);
+    targetA = 28;
+    wait(700,msec);
+    LIFTWork();
+    inchDriveC3(10,600,1);
+    targetA = 5;
+    MTPB(-3, 22.5, 2000,60);
+    inchDriveC3(-2,600,0.4);
+    DriveBrake();
+
+    LIFTWork();
+    targetA = 70;
+    MTPB(0, 10, 2000,60);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+    break;
+    case 6:
+    Intake.setVelocity(100,pct);
+    Gyro.setRotation(0,deg);
+    x=0;
+    y=0;
+
+    inchDriveC2(-10,1800,80,0,1,-85,2,1);
+    gyropivotR(0,false,0.5,1200);
+    // gyropivotL(0,true,0.5,1200);
+    // inchDriveC3(-9,500,1);
+
+    
+
+
+
+    break;
+    case 7:
+    Intake.setVelocity(100,pct);
+    Gyro.setRotation(0,deg);
+    x=0;
+    y=0;
+    targetA = 50;
+    inchDriveC3(-5,250,1);
+    doinkerR.open();
+
+    wait(250,msec);
+    AntlerDEscore();
+    inchDriveC3(10,1000,1);
+    inchDriveC3(-9,500,1);
+    intakeState = -1;
+    doinkerR.close();
+
+    MTP(-12.5, 0, 2000);
+    gyropivotL(55,true);
+    inchDriveC3(-10,1100,1);
+    MTP(-16, 1, 1500);
+    inchDriveC3(-10,1100,1);
+    AntlerDEscore();
+    targetA = 50;
+
+
+
+
+
+    DriveBrake();
+
+
+
+    
+
+    // MTP(24,48,1000000);
+    // MTP(0,0,10000);
 
     break;
     case 8:
-//skills auton
-  drive(75,75,3000);
-  DriveBrake();
+    targetA = 80;
+    currentState = low;
+    toggleState();
   }
 } 
 void pre_auton(void)
@@ -834,7 +1050,8 @@ void pre_auton(void)
 
     {
 while (true) {
-  // liftControl();
+  liftControl();
+   ArmControl();
  Brain.Screen.printAt(1, 20, "Gyro Rotation: %f", Gyro.rotation());
 wait(10, msec);
 } };
@@ -872,7 +1089,7 @@ void usercontrol(void)
     // Controller.ButtonDown.pressed(Align);  
     LeftArm.setPosition(0,deg);
     Arm.resetPosition();
-
+   Aa = true;
     
 
   
@@ -898,21 +1115,16 @@ void usercontrol(void)
 
       // }
       if(Controller.ButtonL2.pressing()){
-        LArm.spin(fwd,50,pct);
-        RArm.spin(fwd,50,pct);
+        LArm.spin(fwd,80,pct);
+        RArm.spin(fwd,80,pct);
         a = false;
 
       }else if (Controller.ButtonL1.pressing()){
-        LArm.spin(reverse,50,pct);
-        RArm.spin(reverse,50,pct);
+        LArm.spin(reverse,80,pct);
+        RArm.spin(reverse,80,pct);
         a = false;
       }else if(a == false){
-        if(Arm.velocity(dps)>=20){
-        LArm.stop(coast);
-        RArm.stop(coast);
-          wait(20, msec);
 
-        }
         LArm.stop(hold);
         RArm.stop(hold);
 
@@ -936,6 +1148,7 @@ void usercontrol(void)
     Brain.Screen.printAt(25,125,"y:%.2f",(y));
     Brain.Screen.printAt(25,150,"UP:%.2f",(RotateUP.value()));
     Brain.Screen.printAt(25,175,"Down:%.2f",(Rotatedown.value()));
+    Brain.Screen.printAt(25,75,"A%d",(a));
 
       liftControl();
       Drive_UserControl();
