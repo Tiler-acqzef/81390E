@@ -176,13 +176,34 @@ void liftControl() {
     double x = (LeftArm.position(deg)+RightArm.position(deg)/2);
     double error = targetL - x;
     double speed = error * kp+kd*(error-lasterror)+ kg;
+    double Akp = 0.05;
+    double Akd = 0.05;
+    double Akg = 0.0;
+    double Alasterror = 0;
+    double Ax = (Arm.position(deg));
+    double Aerror = targetA - x;
+    double Aspeed = Aerror * Akp+Akd*(Aerror-Alasterror)+ Akg;
+      Brain.Screen.printAt(25,200,"Aspeed:%.2f",(Aspeed));
+      Brain.Screen.printAt(25,225,"Aerror:%.2f",(Aerror));
+      Brain.Screen.printAt(25,250,"Ax:%.2f",(Ax));
+
+
+
+    
+  
+
+
+    lasterror = error;
     if(speed >= cap){
       speed = cap;
     }
-    
+    if(a == true){
+    LArm.spin(fwd, -Aspeed, volt);
+    RArm.spin(fwd, -Aspeed, volt);
+    }
     LeftArm.spin(fwd, speed, pct);
     RightArm.spin(fwd, speed, pct);
-    lasterror = error;
+    Alasterror = Aerror;
 }
 enum Astate {    
     lowest,
@@ -635,7 +656,6 @@ void autonomous(void)
   float HEADING;
   vex::thread(intakeControl);
   vex::thread odom (icc_tracking);
-  // vex::thread A (AArmControl);
 
 
 
@@ -1051,7 +1071,6 @@ void pre_auton(void)
     {
 while (true) {
   liftControl();
-   ArmControl();
  Brain.Screen.printAt(1, 20, "Gyro Rotation: %f", Gyro.rotation());
 wait(10, msec);
 } };
@@ -1115,20 +1134,19 @@ void usercontrol(void)
 
       // }
       if(Controller.ButtonL2.pressing()){
-        LArm.spin(fwd,80,pct);
-        RArm.spin(fwd,80,pct);
+        LArm.spin(fwd,70,pct);
+        RArm.spin(fwd,70,pct);
+
         a = false;
 
       }else if (Controller.ButtonL1.pressing()){
-        LArm.spin(reverse,80,pct);
-        RArm.spin(reverse,80,pct);
+        LArm.spin(reverse,60,pct);
+        RArm.spin(reverse,60,pct);
         a = false;
-      }else if(a == false){
-
-        LArm.stop(hold);
-        RArm.stop(hold);
-
-
+      }
+      else{
+        LArm.spin(reverse,0.5,pct);
+        RArm.spin(reverse,0.5,pct);
       }
       // if(Controller.ButtonX.pressing()){
       //   LArm.spin(fwd,40,pct);
@@ -1148,14 +1166,11 @@ void usercontrol(void)
     Brain.Screen.printAt(25,125,"y:%.2f",(y));
     Brain.Screen.printAt(25,150,"UP:%.2f",(RotateUP.value()));
     Brain.Screen.printAt(25,175,"Down:%.2f",(Rotatedown.value()));
-    Brain.Screen.printAt(25,75,"A%d",(a));
 
       liftControl();
       Drive_UserControl();
       Intake_UserControl();
-      if(a == true){
-      ArmControl();
-      }
+
 
 
     }
