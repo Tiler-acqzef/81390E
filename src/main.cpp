@@ -1070,7 +1070,7 @@ void pre_auton(void)
 
     {
 while (true) {
-  liftControl();
+  // liftControl();
  Brain.Screen.printAt(1, 20, "Gyro Rotation: %f", Gyro.rotation());
 wait(10, msec);
 } };
@@ -1115,59 +1115,59 @@ void usercontrol(void)
     while (true)
     {
       if(!Gyro.isCalibrating()){
-      // if(Controller.ButtonL1.pressing()){
-      //   LeftArm.spin(fwd,100,pct);
-      //   RightArm.spin(fwd,100,pct);
+      if(Controller.ButtonL1.pressing()){
+        LeftArm.spin(fwd,100,pct);
+        RightArm.spin(fwd,100,pct);
 
-      // }else if (Controller.ButtonL2.pressing()){
-      //   if (LeftArm.position(deg)<=18){
-      //   LeftArm.stop(hold);
-      //   RightArm.stop(hold);
-      //   }else{
-      //   LeftArm.spin(reverse,100,pct);
-      //   RightArm.spin(reverse,100,pct);
-      //   }
+      }else if (Controller.ButtonL2.pressing()){
+        if (LeftArm.position(deg)<=18){
+        LeftArm.stop(hold);
+        RightArm.stop(hold);
+        }else{
+        LeftArm.spin(reverse,100,pct);
+        RightArm.spin(reverse,100,pct);
+        }
 
-      // }else{
-      //   LeftArm.stop(hold);
-      //   RightArm.stop(hold);
+      }else{
+        LeftArm.stop(hold);
+        RightArm.stop(hold);
 
-      // }
-      if(Controller.ButtonL2.pressing()){
-        LArm.spin(fwd,70,pct);
-        RArm.spin(fwd,70,pct);
-
-        a = false;
-
-      }else if (Controller.ButtonL1.pressing()){
-        LArm.spin(reverse,60,pct);
-        RArm.spin(reverse,60,pct);
-        a = false;
       }
-      else{
-        LArm.spin(reverse,0.5,pct);
-        RArm.spin(reverse,0.5,pct);
-      }
-      // if(Controller.ButtonX.pressing()){
-      //   LArm.spin(fwd,40,pct);
-      //   RArm.spin(fwd,40,pct);
+      // if(Controller.ButtonL2.pressing()){
+      //   LArm.spin(fwd,70,pct);
+      //   RArm.spin(fwd,70,pct);
 
-      // }else if (Controller.ButtonY.pressing()){
-      //   LArm.spin(reverse,40,pct);
-      //   RArm.spin(reverse,40,pct);
+      //   a = false;
 
-      // }else{
-      //   LArm.stop(hold);
-      //   RArm.stop(hold);
-
+      // }else if (Controller.ButtonL1.pressing()){
+      //   LArm.spin(reverse,60,pct);
+      //   RArm.spin(reverse,60,pct);
+      //   a = false;
       // }
+      // else{
+      //   LArm.spin(reverse,0.5,pct);
+      //   RArm.spin(reverse,0.5,pct);
+      // }
+      if(Controller.ButtonX.pressing()){
+        LArm.spin(fwd,100,pct);
+        RArm.spin(fwd,100,pct);
+
+      }else if (Controller.ButtonY.pressing()){
+        LArm.spin(reverse,100,pct);
+        RArm.spin(reverse,100,pct);
+
+      }else{
+        LArm.stop(hold);
+        RArm.stop(hold);
+
+      }
     
     Brain.Screen.printAt(25,100,"x:%.2f",(x));
     Brain.Screen.printAt(25,125,"y:%.2f",(y));
     Brain.Screen.printAt(25,150,"UP:%.2f",(RotateUP.value()));
     Brain.Screen.printAt(25,175,"Down:%.2f",(Rotatedown.value()));
 
-      liftControl();
+      // liftControl();
       Drive_UserControl();
       Intake_UserControl();
 

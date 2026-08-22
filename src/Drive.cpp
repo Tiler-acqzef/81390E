@@ -8,10 +8,10 @@ competition Competition;
 brain Brain;
 controller Controller;
 motor Intake = motor(PORT12, ratio6_1, true);
-motor LeftArm     = motor(PORT10, ratio18_1, false);
-motor RightArm    = motor(PORT15, ratio18_1, true);
-motor LArm = motor(PORT5,ratio18_1,false);
-motor RArm = motor(PORT6,ratio18_1,true);
+motor LeftArm     = motor(PORT11, ratio18_1, true);
+motor RightArm    = motor(PORT20, ratio18_1, false);
+motor LArm = motor(PORT1,ratio18_1,true);
+motor RArm = motor(PORT2,ratio18_1,false);
 
 // motor LeftFront   = motor(PORT2, ratio6_1, true);
 // motor LeftMiddle  = motor(PORT3, ratio6_1, false);
@@ -20,22 +20,24 @@ motor RArm = motor(PORT6,ratio18_1,true);
 // motor RightMiddle = motor(PORT6, ratio6_1, true);
 // motor RightBack   = motor(PORT4, ratio6_1, false); bajBRWuab meow
 
-motor LeftFront = motor(PORT19, ratio6_1, true); //11
+motor LeftFront = motor(PORT14, ratio6_1, true); //11
 motor LeftMiddle = motor(PORT21, ratio18_1, true); //12
-motor LeftBack = motor(PORT18, ratio6_1, true); //13
+motor LeftBack = motor(PORT15, ratio6_1, true); //13
 motor Outake = motor(PORT21,ratio6_1,false);
-motor RightFront = motor(PORT11, ratio6_1, false); //1
+motor RightFront = motor(PORT18, ratio6_1, false); //1
 motor RightMiddle = motor(PORT21, ratio18_1, false); //4
-motor RightBack = motor(PORT13, ratio6_1, false); //14
+motor RightBack = motor(PORT19, ratio6_1, false); //14
 distance liftSensor = (PORT7);
-distance clawSensor = (PORT7);
-rotation Arm = rotation(PORT7);
-rotation odom = rotation(PORT21); 
-pneumatics clamp(Brain.ThreeWirePort.E);
-pneumatics doinkerR(Brain.ThreeWirePort.G);
-pneumatics RotateUP (Brain.ThreeWirePort.F);
-pneumatics Rotatedown (Brain.ThreeWirePort.H);
-inertial Gyro = inertial(PORT17);
+distance clawSensor = (PORT3);
+rotation Arm = rotation(PORT4);
+rotation odomX = rotation(PORT6); 
+rotation odomY = rotation(PORT5); 
+
+pneumatics clamp(Brain.ThreeWirePort.H);
+pneumatics doinkerR(Brain.ThreeWirePort.A);
+pneumatics RotateUP (Brain.ThreeWirePort.A);
+pneumatics Rotatedown (Brain.ThreeWirePort.G);
+inertial Gyro = inertial(PORT21);
 optical OpticalSensor = optical(PORT21);
 vex::aivision AIVision1(PORT21, aivision::ALL_AIOBJS);
 gps GPS = gps(PORT21);
@@ -373,7 +375,7 @@ void inchDriveO(float target, float timeLimit, float mspeed, float chainspeed ,d
   float turn_speed = 0;
   float angleD = 0.4;
   float aacuracy = 0.5; 
-  double startposition = odom.position(rev);
+  double startposition = odomX.position(rev);
   float x = 0;
   float error2 = target;
   float error = target;
@@ -398,7 +400,7 @@ void inchDriveO(float target, float timeLimit, float mspeed, float chainspeed ,d
     {
       target + 360;
     }
-    x = (odom.position(rev)- startposition) * diaO*pi;
+    x = (odomX.position(rev)- startposition) * diaO*pi;
     //  std::cout << x << "\n"; // stope the drive
     error = target - x;
     angle_error = target2 - heading;
@@ -509,9 +511,8 @@ void icc_tracking() {
 
         float heading = Gyro.rotation() * pi / 180.0;
 
-        Dleft = -LeftFront.position(rev) - prevLrev;
-        DRight = (-RightFront.position(rev) - prevRrev);
-        float distance = (((Dleft+DRight)/2.0)*gearRatio) *dia*pi;
+
+        float distance = (odomX.position(rev)) *dia*pi;
 
         float dTheta = heading - prevHeading;
 
