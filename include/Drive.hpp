@@ -20,7 +20,7 @@ extern vex::distance liftSensor;
 extern vex::distance clawSensor;
 extern vex::rotation Arm;
 
-extern vex::rotation odom;
+extern vex::rotation odomX;
 extern vex::pneumatics clamp;
 extern vex::pneumatics doinkerR;
 extern vex::pneumatics RotateUP;

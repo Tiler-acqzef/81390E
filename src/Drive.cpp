@@ -36,15 +36,15 @@ rotation odomY = rotation(PORT5);
 pneumatics clamp(Brain.ThreeWirePort.H);
 pneumatics doinkerR(Brain.ThreeWirePort.A);
 pneumatics RotateUP (Brain.ThreeWirePort.A);
-pneumatics Rotatedown (Brain.ThreeWirePort.G);
-inertial Gyro = inertial(PORT21);
+pneumatics Rotatedown (Brain.ThreeWirePort.F);
+inertial Gyro = inertial(PORT17);
 optical OpticalSensor = optical(PORT21);
 vex::aivision AIVision1(PORT21, aivision::ALL_AIOBJS);
 gps GPS = gps(PORT21);
 float pi = 3.14159;
-float dia = 3.25;
+float dia = 2;
 float diaO = 2;
-float gearRatio = 0.66;
+float gearRatio = 1;
 float width = 14;
 float target2 = 0;
 float x = 0;
@@ -502,6 +502,9 @@ void icc_tracking() {
     float prevLrev = -LeftFront.position(rev);
     float DRight =0;
     float Dleft = 0;
+    odomX.resetPosition();
+    float prevOdomRev = odomX.position(rev);
+    float prevOdomYRev = odomY.position(rev);
 
 
 
@@ -512,29 +515,39 @@ void icc_tracking() {
         float heading = Gyro.rotation() * pi / 180.0;
 
 
-        float distance = (odomX.position(rev)) *dia*pi;
+        float distance = (odomX.position(rev)-prevOdomRev) *dia*pi;
 
+
+        // float dYRev = odomY.position(rev) - prevOdomYRev;
+
+        // float horizontalDistance = dYRev * dia * pi;
         float dTheta = heading - prevHeading;
 
+        while(dTheta > pi)
+            dTheta -= 2 * pi;
 
+        while(dTheta < -pi)
+            dTheta += 2 * pi;
         if(fabs(dTheta) != 0.0){
 
             float R = distance / dTheta;
 
-            x += R * (cos(heading)-cos(prevHeading));
-            y += R * (sin(prevHeading)-sin(heading));
+            x -= R * (cos(heading)-cos(prevHeading));
+            y -= R * (sin(prevHeading)-sin(heading));
 
         }
         else{
 
-            x += distance * sin(heading);
-            y += distance * cos(heading);
+            x -= distance * sin(heading);
+            y -= distance * cos(heading);
 
         }
 
         prevHeading = heading;
         prevRrev = -RightFront.position(rev);
         prevLrev = -LeftFront.position(rev);
+        prevOdomRev = odomX.position(rev);
+        prevOdomYRev = odomY.position(rev);
 
         wait(dt, seconds);
     }
@@ -554,8 +567,8 @@ void MTP (float Tx, float Ty, double timeLimit){
     float LKP = 4.0;
     float LKD = 0.0;
     float LKI = 0;
-    float AKP = 5.0;
-    float AKD = 6.0;
+    float AKP = 3.0;
+    float AKD = 0.0;
     float AKI = 0;
     float speed =0;
     float ASpeed =0;

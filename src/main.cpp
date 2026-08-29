@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =4;
+int AutonomousMode =8;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -98,9 +98,21 @@ void selectAuton()
   wait(10, msec); // slow it down
   Brain.Screen.setFillColor(black);
 }
+void LIFTWork(){
 
+  clamp.set(!clamp.value());
+
+  }
+void position(){
+  
+}
+
+void AntlerDEscore(){
+
+    Rotatedown.set(!Rotatedown.value());
+}
 double targetL = 2;
-double targetA = 2;
+double targetA = 10;
 double targetAA = 5;
 
 float cap = 100;
@@ -108,84 +120,225 @@ float cap = 100;
 enum state {    
     idle,
     loading,
+    loading2,
+    loading3,
+    loading4,
+    loading5,
+    loading6,
     low,
+    low2,
     middle,
+    middle2,
     high,
+    high2,
 };
+double Akp = 0.09;
+double kp = 0.3;
+double kd = 0.0;
 state currentState = idle;
 
 void toggleState() {
     switch(currentState){
         case idle:
-            currentState = low;
+            currentState = loading;
             LeftArm.setVelocity(20,pct);
             RightArm.setVelocity(20,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
+            Rotatedown.close();
+            Akp = 0.05;
             
+            kp = 0.1;
+            targetA = 10;
             targetL = 0;
 
 
             break;
 
         case loading:
+            currentState = loading3;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 65;
+            Akp = 0.05;
+            kp = 0.3;
+
+            targetL = 80;
+            targetA = 280;
+            wait(100,msec);
+            Rotatedown.open();
+
+            break; // old 24
+          case loading2:
             currentState = idle;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
-            while (clawSensor.objectDistance(inches)<=4){
-              targetL = liftSensor.objectDistance(inches)+3;
-            }
-            break; // old 24
+            cap = 65;
+            Akp = 0.09;
+            targetL = 0;
+            targetA = 290;
+            wait(250,msec);
+            clamp.close();
+
+            break;
+            case loading3:
+            currentState = loading5;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 65;
+            Akp = 0.05;
+            targetL = 400;
+            kp = 0.3;
+
+
+            targetA = 260;
+            wait(100,msec);
+            Rotatedown.open();
+
+            break; 
+            case loading4:
+            currentState = idle;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 65;
+            Akp = 0.05;
+            targetL = 250;
+
+            wait(250,msec);
+            clamp.close();
+
+            break; 
+            case loading5:
+            currentState = low;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 65;
+            Akp = 0.05;
+            targetL = 490;
+            kp = 0.8;
+
+            targetA = 250;
+            wait(100,msec);
+            Rotatedown.open();
+
+            break; 
+            case loading6:
+            currentState = idle;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 65;
+            Akp = 0.05;
+
+            targetA = 290;
+
+
+            wait(250,msec);
+            clamp.close();
+
+            break;             
         case low:
             currentState = middle;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
-            cap = 100;
+            cap = 185;
+            Akp = 0.07;
+            kp = 0.2;
 
-            targetL = 300;
-
+            Rotatedown.close();
+          targetL = 0;
+          targetA = 160;
             break;
-        case middle:
-            currentState = high;
+        case low2:
+            currentState = middle;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
-            cap = 100;
-            targetL = 800;
+            cap = 185;
+            Akp = 0.09;
 
+          targetA = 185;
+            wait(250,msec);
+            clamp.close();
             break;
-        case high:
+        case middle:
             currentState = idle;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 100;
-            targetL = 1250;
+            Akp = 0.09;
+            kp = 0.3;
+
+            targetA = 160;
+            Rotatedown.close();
+
+
 
             break;
+        case middle2:
+            currentState = idle;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 100;
+            Akp = 0.09;
+            kp = 0.1;
 
+            targetA = 185;
+            wait(250,msec);
+            clamp.close();
+
+
+            break;
+          case high:
+          currentState = idle;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 65;
+            Akp = 0.09;
+            Rotatedown.close();
+            kp = 0.5;
+
+            targetA = 160;
+
+            break;
+          case high2:
+          currentState = idle;
+            LeftArm.setVelocity(100,pct);
+            RightArm.setVelocity(100,pct);
+            Intake.setVelocity(100,pct);
+            cap = 65;
+            Akp = 0.09;
+
+            targetA = 185;
+            wait(100,msec);
+            Rotatedown.open();
+            break;
     }
 }
 void liftControl() {
-    double kp = 0.1;
-    double kd = 0.1;
+
     double kg = 0;
     double lasterror = 0;
     double x = (LeftArm.position(deg)+RightArm.position(deg)/2);
     double error = targetL - x;
     double speed = error * kp+kd*(error-lasterror)+ kg;
-    double Akp = 0.05;
-    double Akd = 0.05;
+    double Akd = 0;
     double Akg = 0.0;
     double Alasterror = 0;
     double Ax = (Arm.position(deg));
-    double Aerror = targetA - x;
+    double Aerror = targetA - Ax;
     double Aspeed = Aerror * Akp+Akd*(Aerror-Alasterror)+ Akg;
-      Brain.Screen.printAt(25,200,"Aspeed:%.2f",(Aspeed));
-      Brain.Screen.printAt(25,225,"Aerror:%.2f",(Aerror));
-      Brain.Screen.printAt(25,250,"Ax:%.2f",(Ax));
+      Brain.Screen.printAt(25,200,"Aerror:2%.2f",(Aerror));
+      Brain.Screen.printAt(25,225,"Ax:%.2f",(Ax));
 
 
 
@@ -197,10 +350,8 @@ void liftControl() {
     if(speed >= cap){
       speed = cap;
     }
-    if(a == true){
     LArm.spin(fwd, -Aspeed, volt);
     RArm.spin(fwd, -Aspeed, volt);
-    }
     LeftArm.spin(fwd, speed, pct);
     RightArm.spin(fwd, speed, pct);
     Alasterror = Aerror;
@@ -318,7 +469,28 @@ void AArmControl(){
 }
 
 void doubleToggle(){
-  currentState = idle;
+  if(currentState == loading3){
+  currentState = loading2;
+  toggleState();
+  } else if(currentState == loading5){
+  currentState = loading4;
+  toggleState();
+  } else if(currentState == low){
+  currentState = loading6;
+  toggleState();
+  } else if(currentState == middle){
+  currentState = low2;
+  toggleState();
+  } else if(currentState == high){
+  currentState = middle2;
+  toggleState();
+  } else{
+  currentState = high2;
+  toggleState();
+  }
+}
+void ToggleRight(){
+  currentState = high;
   toggleState();
 }
 void Setup_UserControl()
@@ -614,38 +786,7 @@ void Drive_UserControl()
 
 }
 float position = 0;
-void LIFTWork(){
-  if(position == 1){
-    targetA = 5;
-    targetL = 0;
 
-    Rotatedown.open();
-    RotateUP.close();
-    position = 0;
-    a = true;
-    } else{
-    a = false;
-
-  clamp.set(!clamp.value());
-
-  }
-
-}
-void AntlerDEscore(){
-  if(position == 0){
-    targetA = 5;
-    targetL = 100;
-    RotateUP.open();
-    Rotatedown.close();
-    position = 1;
-    a = true;
-
-  } else{
-    a = false;
-
-  clamp.set(!clamp.value());
-  }
-}
 
 
 void test (){
@@ -1039,10 +1180,9 @@ void autonomous(void)
     targetA = 50;
 
 
-
-
-
+    
     DriveBrake();
+
 
 
 
@@ -1053,9 +1193,7 @@ void autonomous(void)
 
     break;
     case 8:
-    targetA = 80;
-    currentState = low;
-    toggleState();
+    MTP(24,24,1500);
   }
 } 
 void pre_auton(void)
@@ -1070,7 +1208,7 @@ void pre_auton(void)
 
     {
 while (true) {
-  // liftControl();
+  liftControl();
  Brain.Screen.printAt(1, 20, "Gyro Rotation: %f", Gyro.rotation());
 wait(10, msec);
 } };
@@ -1099,15 +1237,16 @@ void usercontrol(void)
 
     //trollol lol 
     AIVision1.tagDetection(true);
+    Controller.ButtonA.pressed(LIFTWork);
     Controller.ButtonB.pressed(LIFTWork);
-    Controller.ButtonA.pressed(AntlerDEscore);
-    Controller.ButtonDown.pressed(doubleToggle); 
-    Controller.ButtonUp.pressed(toggleState); 
+
+    Controller.ButtonX.pressed(AntlerDEscore);
+    Controller.ButtonL2.pressed(doubleToggle); 
+    Controller.ButtonL1.pressed(toggleState); 
     Controller.ButtonY.pressed(doinkerRtoggle); 
   
     // Controller.ButtonDown.pressed(Align);  
     LeftArm.setPosition(0,deg);
-    Arm.resetPosition();
    Aa = true;
     
 
@@ -1115,24 +1254,26 @@ void usercontrol(void)
     while (true)
     {
       if(!Gyro.isCalibrating()){
-      if(Controller.ButtonL1.pressing()){
-        LeftArm.spin(fwd,100,pct);
-        RightArm.spin(fwd,100,pct);
+      // if(Controller.ButtonL1.pressing()){
 
-      }else if (Controller.ButtonL2.pressing()){
-        if (LeftArm.position(deg)<=18){
-        LeftArm.stop(hold);
-        RightArm.stop(hold);
-        }else{
-        LeftArm.spin(reverse,100,pct);
-        RightArm.spin(reverse,100,pct);
-        }
+      //   LeftArm.spin(reverse,100,pct);
+      //   RightArm.spin(reverse,100,pct);
 
-      }else{
-        LeftArm.stop(hold);
-        RightArm.stop(hold);
 
-      }
+      // }else if (Controller.ButtonL2.pressing()){
+      //   if (LeftArm.position(deg)>=-10){
+      //   LeftArm.stop(hold);
+      //   RightArm.stop(hold);
+      //   }else{
+      //   LeftArm.spin(fwd,100,pct);
+      //   RightArm.spin(fwd,100,pct);
+      //   }
+
+      // }else{
+      //   LeftArm.stop(hold);
+      //   RightArm.stop(hold);
+
+      // }
       // if(Controller.ButtonL2.pressing()){
       //   LArm.spin(fwd,70,pct);
       //   RArm.spin(fwd,70,pct);
@@ -1148,32 +1289,33 @@ void usercontrol(void)
       //   LArm.spin(reverse,0.5,pct);
       //   RArm.spin(reverse,0.5,pct);
       // }
-      if(Controller.ButtonX.pressing()){
-        LArm.spin(fwd,100,pct);
-        RArm.spin(fwd,100,pct);
+      // if(Controller.ButtonX.pressing()){
+      //   LArm.spin(fwd,100,pct);
+      //   RArm.spin(fwd,100,pct);
 
-      }else if (Controller.ButtonY.pressing()){
-        LArm.spin(reverse,100,pct);
-        RArm.spin(reverse,100,pct);
+      // }else if (Controller.ButtonY.pressing()){
+      //   LArm.spin(reverse,100,pct);
+      //   RArm.spin(reverse,100,pct);
 
-      }else{
-        LArm.stop(hold);
-        RArm.stop(hold);
+      // }else{
+      //   LArm.stop(hold);
+      //   RArm.stop(hold);
 
-      }
+      // }
     
     Brain.Screen.printAt(25,100,"x:%.2f",(x));
     Brain.Screen.printAt(25,125,"y:%.2f",(y));
-    Brain.Screen.printAt(25,150,"UP:%.2f",(RotateUP.value()));
-    Brain.Screen.printAt(25,175,"Down:%.2f",(Rotatedown.value()));
+    Brain.Screen.printAt(25,150,"Gyro:%.2f",(Gyro.rotation(deg)));
+    Brain.Screen.printAt(25,175,"Ox:%.2f",(odomX.position(rev)));
 
-      // liftControl();
+
+
+      liftControl();
       Drive_UserControl();
       Intake_UserControl();
 
 
-
-    }
+      }
   }
 }
 
