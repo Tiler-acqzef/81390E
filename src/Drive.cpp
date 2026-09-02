@@ -10,7 +10,7 @@ controller Controller;
 motor Intake = motor(PORT12, ratio6_1, true);
 motor LeftArm     = motor(PORT11, ratio18_1, true);
 motor RightArm    = motor(PORT20, ratio18_1, false);
-motor LArm = motor(PORT1,ratio18_1,true);
+motor LArm = motor(PORT3,ratio18_1,true);
 motor RArm = motor(PORT2,ratio18_1,false);
 
 // motor LeftFront   = motor(PORT2, ratio6_1, true);
