@@ -181,15 +181,16 @@ void toggleState() {
             RightArm.setVelocity(20,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
-            Rotatedown.close();
             Akp = 0.15;
             Akd = 0.55;
-            
-            kp = 0.6;
-            kd = 14;            
-            targetA = 10;
-            targetL = 0;
             counter = 0;
+
+            kp = 0.6;
+            kd = 16;            
+            targetA = 12;
+            targetL = 0;
+            Rotatedown.close();
+
             if (!backside) {
           if (!flip) {
               if (!height) {
@@ -231,13 +232,13 @@ void toggleState() {
             cap = 65;
             Akp= 0.03;
             Akd = 0.0;
-
-            targetA = 280;
-            wait(150,msec);
+            kp = 0.3;
+            kd = 0;
+            targetA = 260;
             targetL = 80;
-            Rotatedown.open();
             counter = 1;
             Controller.rumble(".");
+            
             break; // old 24
           case loading2:
             currentState = idle;
@@ -245,23 +246,29 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
+            Akp = 0.15;
+            Akd = 0.55;
             targetL = 0;
-            targetA = 300;
+            wait(300,msec);
+            targetA = 310;
             wait(250,msec);
             clamp.close();
+            counter = 0;
             break;
             case loading3:
-            currentState = loading5;
+            currentState = idle;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
-            targetL =450;
-            Akp = 0.15;
-            Akd = 0.55;
+            targetL =400;
+            Akp = 0.03;
+            Akd = 0.0;
+            kp = 0.6;
+            kd = 16;
 
 
-            targetA = 280;
+            targetA = 255;
             wait(100,msec);
             Rotatedown.open();
             Controller.rumble("..");
@@ -275,23 +282,24 @@ void toggleState() {
             cap = 65;
             targetL = 350;
             targetA = 300;
-
+            Akp = 0.15;
+            Akd = 0.55;
 
             wait(250,msec);
             clamp.close();
 
             break; 
             case loading5:
-            currentState = idle;
+            currentState = low;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
             targetL = 0;
-
+            Akp = 0.05;
+            Akd = 0.0;
             targetA = 195;
-            wait(100,msec);
-            Rotatedown.close();
+
             counter = 3;
             Controller.rumble("...");
 
@@ -315,6 +323,7 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 185;
+
             Akp = 0.09;
             Akd = 0.0;
 
@@ -331,7 +340,7 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 185;
-            Akp = 0.09;
+            Akp = 0.15;
             Akd = 0.55;
 
           targetA = 173;
@@ -905,11 +914,15 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
-            targetL = 380;
+            Akp = 0.05;
+            Akd = 0.0;
+            targetL = 280;
             wait(300,msec);
             targetA = 90;
             wait(1000,msec);
             counter = 27;
+            Akp = 0.15;
+            Akd = 0.55;
             if (!backside) {
                 if (!flip) {
                     if (!height) {
@@ -919,7 +932,7 @@ void toggleState() {
                     }
                 } else {
                     if (!height) {
-                        currentState = low;
+                        currentState = loading5;
                     } else {
                         currentState = loading13;
                     }
@@ -954,7 +967,7 @@ void idlePosition(){
               }
           } else {
               if (!height) {
-                  currentState = low;
+                  currentState = loading5;
               } else {
                   currentState = loading13;
               }
@@ -975,8 +988,15 @@ void idlePosition(){
           }
       }
     }
-
-
+    if(counter == 1&& Rotatedown.value() == 0){
+        wait(600,msec);
+        Rotatedown.open();
+    }
+    if(counter == 3&& Rotatedown.value() == 1){
+        wait(100,msec);
+        Rotatedown.close();
+    }
+  
 
 }
     double intergal = 0;
@@ -1961,6 +1981,7 @@ void pre_auton(void)
     {
 while (true) {
   liftControl();
+  idlePosition();
  Brain.Screen.printAt(1, 20, "Gyro Rotation: %f", Gyro.rotation());
 wait(10, msec);
 } };
@@ -1986,7 +2007,6 @@ void usercontrol(void)
     Intake.setVelocity(100,pct);
     Outake.setVelocity(100,pct);
     vex::thread odom(icc_tracking);
-
     //trollol lol 
     AIVision1.tagDetection(true);
     Controller.ButtonA.pressed(LIFTWork);
@@ -2073,7 +2093,6 @@ void usercontrol(void)
     Brain.Screen.printAt(25,175,"Ox:%.2f",(odomX.position(rev)));
     Brain.Screen.printAt(25,175,"position:",(currentState));
 
-    idlePosition();
       liftControl();
       Drive_UserControl();
       Intake_UserControl();
