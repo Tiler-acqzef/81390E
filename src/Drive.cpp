@@ -21,15 +21,15 @@ motor RArm = motor(PORT2,ratio18_1,false);
 // motor RightBack   = motor(PORT4, ratio6_1, false); bajBRWuab meow
 
 motor LeftFront = motor(PORT14, ratio6_1, true); //11
-motor LeftMiddle = motor(PORT21, ratio18_1, true); //12
+motor LeftMiddle = motor(PORT9, ratio18_1, true); //12
 motor LeftBack = motor(PORT15, ratio6_1, true); //13
-motor Outake = motor(PORT21,ratio6_1,false);
+motor Outake = motor(PORT9,ratio6_1,false);
 motor RightFront = motor(PORT18, ratio6_1, false); //1
-motor RightMiddle = motor(PORT21, ratio18_1, false); //4
+motor RightMiddle = motor(PORT9, ratio18_1, false); //4
 motor RightBack = motor(PORT19, ratio6_1, false); //14
-distance liftSensor = (PORT7);
-distance clawSensor = (PORT3);
-rotation Arm = rotation(PORT4);
+distance liftSensor = (PORT9);
+distance clawSensor = (PORT21);
+rotation Arm = rotation(PORT7);
 rotation odomX = rotation(PORT6); 
 rotation odomY = rotation(PORT5); 
 
@@ -38,9 +38,9 @@ pneumatics doinkerR(Brain.ThreeWirePort.A);
 pneumatics RotateUP (Brain.ThreeWirePort.A);
 pneumatics Rotatedown (Brain.ThreeWirePort.F);
 inertial Gyro = inertial(PORT17);
-optical OpticalSensor = optical(PORT21);
-vex::aivision AIVision1(PORT21, aivision::ALL_AIOBJS);
-gps GPS = gps(PORT21);
+optical OpticalSensor = optical(PORT9);
+vex::aivision AIVision1(PORT9, aivision::ALL_AIOBJS);
+gps GPS = gps(PORT9);
 float pi = 3.14159;
 float dia = 2;
 float diaO = 2;
