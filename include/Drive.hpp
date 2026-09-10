@@ -49,7 +49,7 @@ void TTP (float Tx, float Ty, double timeLimit,double flip =0);
 void MTPB (float Tx, float Ty, double timeLimit, double Tspeed =100, double Mspeed = 0, double acuracy = 2.0);
 
 void Align();
-void gyroTurnF(float target, double mspeed =1, double accuracy = 0.3, float b = 2.4);
+void gyroTurnF(float target, double mspeed =1, double accuracy = 0.2, float b = 2.4);
 void gyropivotR(float target, bool direction, double accuracy = 0.5,  int timeLimit = 1200, float b = 2.4);
 void gyropivotL(float target, bool direction, double accuracy = 0.5,  int timeLimit = 1200, float b = 2.4);
 void gyropivotRC(float target, bool direction, double accuracy = 0.5,  int timeLimit = 1200, float b = 2.4);

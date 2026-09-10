@@ -567,7 +567,7 @@ void MTP (float Tx, float Ty, double timeLimit){
     float LKP = 4.0;
     float LKD = 0.0;
     float LKI = 0;
-    float AKP = 3.0;
+    float AKP = 2.5;
     float AKD = 0.0;
     float AKI = 0;
     float speed =0;
@@ -680,7 +680,7 @@ void MTP (float Tx, float Ty, double timeLimit){
 }
 void TTP (float Tx, float Ty, double timeLimit,double flip){
     float AKP = 5.0;
-    float AKD = 6.0;
+    float AKD = 10.0;
     float AKI = 0;
     float ASpeed =0;
     float errorX = Tx-x;
@@ -727,7 +727,7 @@ void TTP (float Tx, float Ty, double timeLimit,double flip){
 
     ASpeed = Aerror*AKP + AKD*(Aerror-Last_Aerror);
     
-    drive(ASpeed,ASpeed,0);
+    drive(ASpeed,-ASpeed,0);
 
     Last_Aerror = Aerror;
 
@@ -749,8 +749,8 @@ void MTPB (float Tx, float Ty, double timeLimit,double Tspeed,double Mspeed,doub
     float LKP = 4.0;
     float LKD = 0.0;
     float LKI = 0;
-    float AKP = 5.0;
-    float AKD = 6.0;
+    float AKP = 2.5;
+    float AKD = 0.0;
     float AKI = 0;
     float speed =0;
     float ASpeed =0;
@@ -922,10 +922,10 @@ void gyroTurnF(float target, double mspeed , double accuracy , float b )
 {
   float heading = 0.0; // initialize a variable for heading
   double error = target - heading;
-  double ki = 0.5;
+  double ki = 0.1;
   double intergal = 0;
 
-  double kp = 5; // 7.85;//was 6
+  double kp = 4; // 7.85;//was 6
   double speed = 0;
   double kd = 70; // 0.65;//was 0.3
   double last_error = 0;
@@ -935,7 +935,7 @@ void gyroTurnF(float target, double mspeed , double accuracy , float b )
 
   timer.clear(); // Clear any previous timer value
   int timeLimit = 2100;
-  while (fabs(error) >= accuracy or count <= 5)
+  while (fabs(error) >= accuracy or count <= 8)
   {
     heading = Gyro.rotation(); // measure the heading of the robot
     std::cout << heading << "\n";
