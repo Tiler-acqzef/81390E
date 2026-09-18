@@ -31,11 +31,16 @@ extern vex::aivision AIVision1;
 extern vex::motor Outake;
 extern float x;
 extern float y;
+extern float statechanger;
+
 void Drive_Autonomous(int LeftSpeed, int RightSpeed, int WaitTime);
 void drive(double lspeed, double rspeed, int wt);
 void DriveBrake();
 void Drivecoast();
 void Drive_Autonomous_Volt(int LeftSpeed, int RightSpeed, int WaitTime);
+void inchDriveCE(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
+void MTPTPTP(float Tx1, float Ty1, bool reverse1, float Tx2, float Ty2, bool reverse2, float Tx3, float Ty3, bool reverse3,float timeLimit, double mspeed, float switchDist1, float statechanger1, float switchDist2, float statechanger2, float accuracy);
+
 void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
 void inchDriveC3(float target, float timeLimit, float mspeed,bool chained = false, double target2 = Gyro.rotation());
 void inchDriveC2(float target, float timeLimit,double mspeed = 100, double target2 = Gyro.rotation(), double distbetweentarget=0, double target3 = Gyro.rotation(),double distbetweentarget2=0,double target4 = Gyro.rotation(), int c = 0);
@@ -49,7 +54,7 @@ void TTP (float Tx, float Ty, double timeLimit,double flip =0);
 void MTPB (float Tx, float Ty, double timeLimit, double Tspeed =100, double Mspeed = 0, double acuracy = 2.0);
 
 void Align();
-void gyroTurnF(float target, double mspeed =1, double accuracy = 0.2, float b = 2.4);
+void gyroTurnF(float target, double mspeed =1, double accuracy = 0.2,  int timeLimit = 2100, float b = 2.4);
 void gyropivotR(float target, bool direction, double accuracy = 0.5,  int timeLimit = 1200, float b = 2.4);
 void gyropivotL(float target, bool direction, double accuracy = 0.5,  int timeLimit = 1200, float b = 2.4);
 void gyropivotRC(float target, bool direction, double accuracy = 0.5,  int timeLimit = 1200, float b = 2.4);
