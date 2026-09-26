@@ -39,6 +39,8 @@ void DriveBrake();
 void Drivecoast();
 void Drive_Autonomous_Volt(int LeftSpeed, int RightSpeed, int WaitTime);
 void inchDriveCE(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
+void inchDriveD(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
+
 void MTPTPTP(float Tx1, float Ty1, bool reverse1, float Tx2, float Ty2, bool reverse2, float Tx3, float Ty3, bool reverse3,float timeLimit, double mspeed, float switchDist1, float statechanger1, float switchDist2, float statechanger2, float accuracy);
 
 void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);

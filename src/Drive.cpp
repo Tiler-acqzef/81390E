@@ -10,8 +10,8 @@ controller Controller;
 motor Intake = motor(PORT12, ratio6_1, true);
 motor LeftArm     = motor(PORT11, ratio18_1, true);
 motor RightArm    = motor(PORT20, ratio18_1, false);
-motor LArm = motor(PORT1,ratio18_1,true);
-motor RArm = motor(PORT2,ratio18_1,false);
+motor LArm = motor(PORT3,ratio18_1,true);
+motor RArm = motor(PORT4,ratio18_1,false);
 
 // motor LeftFront   = motor(PORT2, ratio6_1, true);
 // motor LeftMiddle  = motor(PORT3, ratio6_1, false);
@@ -29,9 +29,9 @@ motor RightMiddle = motor(PORT9, ratio18_1, false); //4
 motor RightBack = motor(PORT19, ratio6_1, false); //14
 distance liftSensor = (PORT9);
 distance clawSensor = (PORT21);
-rotation Arm = rotation(PORT7);
-rotation odomX = rotation(PORT6); 
-rotation odomY = rotation(PORT5); 
+rotation Arm = rotation(PORT5);
+rotation odomX = rotation(PORT7); 
+rotation odomY = rotation(PORT6); 
 
 pneumatics clamp(Brain.ThreeWirePort.H);
 pneumatics doinkerR(Brain.ThreeWirePort.A);
@@ -170,7 +170,7 @@ void inchDriveCE(float target, float timeLimit, float mspeed, float chainspeed, 
     std::cout << x << std::endl;
   }
 }
-void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
+void inchDriveD(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
   float heading = 0;
   float angle_error = 0;
   float angle_last_error = 0;
@@ -183,7 +183,7 @@ void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, d
   float x = 0;
   float error2 = target;
   float error = target;
-  float kp = 7;
+  float kp = 4;
   float speed = kp * error;
   float accuracy = 0.05; // was 0.05
   float kd = 0.4;
@@ -199,7 +199,7 @@ void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, d
     }else if (target2 < -180){
       target + 360;
     }
-    x = ((RightFront.position(rev)+RightBack.position(rev))/2) * pi * dia * gearRatio;
+    x = clawSensor.objectDistance(inches);
     error = target - x;
     angle_error = target2 - heading;
     speed = kp * error + kd * (error - last_error) / dt;
@@ -230,6 +230,84 @@ void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, d
       break;
     }
     std::cout << x << std::endl;
+  }
+}
+void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
+  float heading = 0;
+  float angle_error = 0;
+  float angle_last_error = 0;
+  float angleP = 2;
+  float turn_speed = 0;
+  float angleD = 0.2;
+  float aacuracy = 0.5; 
+  RightFront.setPosition(0, rev);
+  RightBack.setPosition (0,rev);
+  float x = 0;
+  float error2 = target;
+  float error = target;
+  float kp = 7;
+  float speed = kp * error;
+  float accuracy = 0.2; // was 0.05
+  float kd = 0.4;
+  float ki = 1.05;              
+  float integral = 0;
+  float integral_limit = 30;    
+  float integral_band = 3;    
+  double last_error = 0;
+  double dt = 0.01;
+  double last_speed = 0;
+  vex::timer timer; // Create a timer object
+  timer.clear();
+  while (fabs(error) >= accuracy){
+    heading = Gyro.rotation();
+    if (target2 > 180){
+      target - 360;
+    }else if (target2 < -180){
+      target + 360;
+    }
+    x = ((RightFront.position(rev)+RightBack.position(rev))/2) * pi * dia * gearRatio;
+    error = target - x;
+    angle_error = target2 - heading;
+
+    if (fabs(error) < integral_band){
+      integral += error * dt;
+    } else {
+      integral = 0; 
+    }
+    float integral_term = ki * integral;
+    if (integral_term > integral_limit) integral_term = integral_limit;
+    if (integral_term < -integral_limit) integral_term = -integral_limit;
+
+    speed = kp * error + kd * (error - last_error) / dt + integral_term;
+
+    turn_speed = angleP * angle_error + angleD * (angle_error - angle_last_error) / dt;
+    if (speed >= 100){
+      speed = 100;
+    }else if (speed <= -100){
+      speed = -100;
+    }
+    if(mspeed >=0&&mspeed <= chainspeed){
+    if (fabs(speed) < chainspeed )
+    {
+      if (speed > 0){
+        speed = chainspeed;
+      }else{
+        speed = (-1*chainspeed);
+      }
+    }
+    }
+    std::cout << error << std::endl;
+
+
+    drive(mspeed*(speed+turn_speed), mspeed*(speed-turn_speed), 10);
+    last_error = error;
+    angle_last_error = angle_error;
+    if(fabs(angle_error)<= aacuracy){
+      target2 = target3;
+    }
+    if (timer.time(vex::timeUnits::msec) >= timeLimit){
+      break;
+    }
   }
 }
 void inchDriveC3(float target, float timeLimit, float mspeed,bool chained, double target2)
@@ -859,8 +937,8 @@ void MTP (float Tx, float Ty, double timeLimit){
 }
 void TTP (float Tx, float Ty, double timeLimit,double flip){
     float AKP = 5.0;
-    float AKD = 35;
-    float AKI = 0.8;
+    float AKD = 44;
+    float AKI = 0.82;
     float ASpeed =0;
   double intergal = 0;
 
@@ -1131,7 +1209,7 @@ void gyroTurnF(float target, double mspeed , double accuracy,  int timeLimit, fl
 
   double kp = 5; // 7.85;//was 6
   double speed = 0;
-  double kd = 65; // 0.65;//was 0.3
+  double kd = 68; // 0.65;//was 0.3
   double last_error = 0;
   double dt = 0.01; // reset Gyro to zero degrees
   int count = 0;
