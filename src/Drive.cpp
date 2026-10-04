@@ -27,9 +27,12 @@ motor Outake = motor(PORT9,ratio6_1,false);
 motor RightFront = motor(PORT18, ratio6_1, false); //1
 motor RightMiddle = motor(PORT9, ratio18_1, false); //4
 motor RightBack = motor(PORT19, ratio6_1, false); //14
-distance liftSensor = (PORT9);
+distance liftSensor = (PORT10);
 distance clawSensor = (PORT21);
-rotation Arm = rotation(PORT5);
+distance Fsensor = (PORT8);
+distance Ssensor = (PORT9);
+
+rotation Arm = rotation(PORT5,true);
 rotation odomX = rotation(PORT7); 
 rotation odomY = rotation(PORT6); 
 

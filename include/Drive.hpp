@@ -18,6 +18,8 @@ extern vex::motor RightMiddle;
 extern vex::motor RightBack;
 extern vex::distance liftSensor; 
 extern vex::distance clawSensor;
+extern distance Ssensor;
+extern distance Ssensor;
 extern vex::rotation Arm;
 
 extern vex::rotation odomX;
