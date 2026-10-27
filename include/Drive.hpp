@@ -18,10 +18,10 @@ extern vex::motor RightMiddle;
 extern vex::motor RightBack;
 extern vex::distance liftSensor; 
 extern vex::distance clawSensor;
-extern distance Ssensor;
-extern distance Ssensor;
+extern vex::distance Ssensor;
+extern vex::distance Ssensor;
 extern vex::rotation Arm;
-
+extern vex::rotation lift;
 extern vex::rotation odomX;
 extern vex::pneumatics clamp;
 extern vex::pneumatics doinkerR;
@@ -42,11 +42,14 @@ void Drivecoast();
 void Drive_Autonomous_Volt(int LeftSpeed, int RightSpeed, int WaitTime);
 void inchDriveCE(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
 void inchDriveD(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
+void inchDriveDF(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
 
 void MTPTPTP(float Tx1, float Ty1, bool reverse1, float Tx2, float Ty2, bool reverse2, float Tx3, float Ty3, bool reverse3,float timeLimit, double mspeed, float switchDist1, float statechanger1, float switchDist2, float statechanger2, float accuracy);
 
 void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
 void inchDriveC3(float target, float timeLimit, float mspeed,bool chained = false, double target2 = Gyro.rotation());
+void inchDriveCD(float target, float timeLimit, float mspeed, float chainspeed,float sideTarget = -1, int wallDir = 1);
+
 void inchDriveC2(float target, float timeLimit,double mspeed = 100, double target2 = Gyro.rotation(), double distbetweentarget=0, double target3 = Gyro.rotation(),double distbetweentarget2=0,double target4 = Gyro.rotation(), int c = 0);
 void inchDriveO(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
 void arcturn(float target, float arcdegree, float timeLimit, int b = 1.5, int c = 0);
@@ -64,7 +67,9 @@ void gyropivotL(float target, bool direction, double accuracy = 0.5,  int timeLi
 void gyropivotRC(float target, bool direction, double accuracy = 0.5,  int timeLimit = 1200, float b = 2.4);
 void gyropivotLC(float target, bool direction, double accuracy = 0.5,  int timeLimit = 1200, float b = 2.4);
 void arcturnLH(int r, float arcdeg, int timeLimit, float max_drift = 0.15);
-void arcturn3(int r, float targetA, double timeLimit, bool Left = true);
+void arcturn3F(int r, float targetA, double timeLimit, bool Left = true);
+void arcturn3B(int r, float targetA, double timeLimit, bool Left = true);
+
 void arcturnL(int r, float arcdeg, int timeLimit, float max_drift = 0.15);
 void arcturnR(float r, float arcdeg, int timeLimit, float max_drift = 0.1);
 void arcturnLC(float r, float arcdeg, int timeLimit, float max_drift = 0.15);

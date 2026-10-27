@@ -31,6 +31,7 @@ distance liftSensor = (PORT10);
 distance clawSensor = (PORT21);
 distance Fsensor = (PORT8);
 distance Ssensor = (PORT9);
+rotation lift = rotation(PORT16,true);
 
 rotation Arm = rotation(PORT5,true);
 rotation odomX = rotation(PORT7); 
@@ -173,6 +174,69 @@ void inchDriveCE(float target, float timeLimit, float mspeed, float chainspeed, 
     std::cout << x << std::endl;
   }
 }
+void inchDriveDF(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
+  float heading = 0;
+  float angle_error = 0;
+  float angle_last_error = 0;
+  float angleP = 2;
+  float turn_speed = 0;
+  float angleD = 0.2;
+  float aacuracy = 0.5; 
+  RightFront.setPosition(0, rev);
+  RightBack.setPosition (0,rev);
+  float x = 0;
+  float error2 = target;
+  float error = target;
+  float kp = 4;
+  float speed = kp * error;
+  float accuracy = 0.05; // was 0.05
+  float kd = 0.4;
+  double last_error = 0;
+  double dt = 0.01;
+  double last_speed = 0;
+  vex::timer timer; // Create a timer object
+  timer.clear();
+  while (fabs(error) >= accuracy){
+    heading = Gyro.rotation();
+    if (target2 > 180){
+      target - 360;
+    }else if (target2 < -180){
+      target + 360;
+    }
+    x = Fsensor.objectDistance(inches);
+    error = target - x;
+    angle_error = target2 - heading;
+    speed = kp * error + kd * (error - last_error) / dt;
+    turn_speed = angleP * angle_error + angleD * (angle_error - angle_last_error) / dt;
+    if (speed >= 100){
+      speed = 100;
+    }else if (speed <= -100){
+      speed = -100;
+    }
+    if(mspeed >=0&&mspeed <= chainspeed){
+    if (fabs(speed) < chainspeed )
+    {
+      if (speed > 0){
+        speed = chainspeed;
+      }else{
+        speed = (-1*chainspeed);
+      }
+    }
+    }
+
+    drive(mspeed*(-speed+turn_speed), mspeed*(-speed-turn_speed), 10);
+    last_error = error;
+    angle_last_error = angle_error;
+    if(fabs(angle_error)<= aacuracy){
+      target2 = target3;
+    }
+    if (timer.time(vex::timeUnits::msec) >= timeLimit){
+      break;
+    }
+    std::cout << x << std::endl;
+  }
+}
+
 void inchDriveD(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
   float heading = 0;
   float angle_error = 0;
@@ -313,6 +377,90 @@ void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, d
     }
   }
 }
+// SideDist = your vex::distance sensor (rename to match your config)
+// sideTarget: desired distance from wall in inches (-1 = disabled, old behavior)
+// wallDir:  +1 if the wall is on the robot's RIGHT, -1 if on the LEFT
+
+void inchDriveCD(float target, float timeLimit, float mspeed, float chainspeed,float sideTarget,  int wallDir) {
+  float heading = 0;
+  float angle_error = 0;
+  float angle_last_error = 0;
+  float angleP = 8;
+  float angleD = 0.2;
+  float aacuracy = 0.5;
+  float turn_speed = 0;
+
+  // side-distance correction
+  float sideKp = 3.0;        // degrees of heading offset per inch of side error
+  float maxSideOffset = 15;  // never lean more than this many degrees
+  float sideMin = 1.0, sideMax = 8.0;  // only trust sensor in this range (in)
+  float lastSide = -1;
+  float sideOffset = 0;
+
+  RightFront.setPosition(0, rev);
+  RightBack.setPosition(0, rev);
+  float x = 0;
+  float error = target;
+  float kp = 7, kd = 0.4, ki = 1.05;
+  float speed = 0;
+  float accuracy = 0.2;
+  float integral = 0, integral_limit = 30, integral_band = 3;
+  double last_error = 0;
+  double dt = 0.01;
+
+  vex::timer timer;
+  timer.clear();
+
+  while (fabs(error) >= accuracy) {
+    heading = Gyro.rotation();
+
+    // --- side distance correction ---
+    if (sideTarget > 0) {
+      float side = Ssensor.objectDistance(vex::inches);
+      bool valid = (side >= sideMin && side <= sideMax) &&
+                   (lastSide < 0 || fabs(side - lastSide) < 2.0); // reject sudden jumps
+      if (valid) {
+        // too far from wall -> lean toward it, too close -> lean away
+        sideOffset = wallDir * (side - sideTarget);
+        if (sideOffset > maxSideOffset) sideOffset = maxSideOffset;
+        if (sideOffset < -maxSideOffset) sideOffset = -maxSideOffset;
+        lastSide = side;
+      } 
+      // else {
+      //   sideOffset = 0;  // bad reading: just hold the gyro heading
+      // }
+    }
+
+    x = ((RightFront.position(rev) + RightBack.position(rev)) / 2) * pi * dia * gearRatio;
+    error = target - x;
+    angle_error = (sideOffset) - heading;
+
+    if (fabs(error) < integral_band) integral += error * dt;
+    else integral = 0;
+    float integral_term = ki * integral;
+    if (integral_term > integral_limit) integral_term = integral_limit;
+    if (integral_term < -integral_limit) integral_term = -integral_limit;
+
+    speed = kp * error + kd * (error - last_error) / dt + integral_term;
+    turn_speed = angleP * angle_error + angleD * (angle_error - angle_last_error) / dt;
+
+    if (speed > 100) speed = 100;
+    else if (speed < -100) speed = -100;
+
+    if (mspeed >= 0 && mspeed <= chainspeed) {
+      if (fabs(speed) < chainspeed) speed = (speed > 0) ? chainspeed : -chainspeed;
+    }
+    std::cout << Ssensor.objectDistance(vex::inches) << "\n";
+
+    drive(mspeed * (speed - turn_speed), mspeed * (speed + turn_speed), 10);
+    last_error = error;
+    angle_last_error = angle_error;
+
+
+    if (timer.time(vex::timeUnits::msec) >= timeLimit) break;
+  }
+} 
+
 void inchDriveC3(float target, float timeLimit, float mspeed,bool chained, double target2)
 {
   float heading = 0;
@@ -938,97 +1086,157 @@ void MTP (float Tx, float Ty, double timeLimit){
   DriveBrake();
 
 }
-void TTP (float Tx, float Ty, double timeLimit,double flip){
-    float AKP = 5.0;
-    float AKD = 44;
-    float AKI = 0.82;
-    float ASpeed =0;
-  double intergal = 0;
+// void TTP (float Tx, float Ty, double timeLimit,double flip){
+//     float AKP = 6.0;
+//     float AKD = 36;
+//     float AKI = 0.8;
+//     float ASpeed =0;
+//   double intergal = 0;
 
-    float errorX = Tx-x;
-    float ErrorY = Ty - y;
-    float heading = Gyro.rotation();  
-    float Aerror = 0;
-    float Last_Aerror = 0;
-    float counter = 0;
-    timer timer;
-    int xsign = sign(errorX);
-    int ysign = sign(ErrorY);
-
-
-    while (true){
-    heading = Gyro.rotation();
-    errorX = Tx-x;
-    ErrorY = Ty - y;
-    bool overshot =
-    sign(errorX) != xsign &&
-    sign(ErrorY) != ysign;
-
-      float directionFlip = 0.0;
+//     float errorX = Tx-x;
+//     float ErrorY = Ty - y;
+//     float heading = Gyro.rotation();  
+//     float Aerror = 0;
+//     float Last_Aerror = 0;
+//     float counter = 0;
+//     timer timer;
+//     int xsign = sign(errorX);
+//     int ysign = sign(ErrorY);
 
 
-    float targetHeading =
-        atan2(errorX, ErrorY) * 180.0 / M_PI- flip;
+//     while (true){
+//     heading = Gyro.rotation();
+//     errorX = Tx-x;
+//     ErrorY = Ty - y;
+//     bool overshot =
+//     sign(errorX) != xsign &&
+//     sign(ErrorY) != ysign;
 
-    Aerror = targetHeading - heading;
-
-
-
-    while (Aerror > 180){
-        Aerror -= 360;
-    }
-
-    while (Aerror < -180){
-        Aerror += 360;
-    }
-     if (fabs(Aerror) < 15 && fabs(Aerror) > 0.25)
-    {
-      intergal += Aerror;
-    }
-    else
-    {
-      intergal = 0;
-    }
-
-    if (intergal >= 50)
-    {
-      intergal = 50;
-    }
-    else if (intergal <= -50)
-    {
-      intergal = -50;
-    }
-
-    // if(sign(errorX)!= xsign && sign(ErrorY)!= ysign ){
-    //   Controller.Screen.print("done");
-    //   hypot = -hypot;
+//       float directionFlip = 0.0;
 
 
-    std::cout << Aerror << "\n";
+//     float targetHeading =
+//         atan2(errorX, ErrorY) * 180.0 / M_PI- flip;
 
-    ASpeed = Aerror*AKP + AKD*(Aerror-Last_Aerror)+AKI * intergal;
+//     Aerror = targetHeading - heading;
+
+
+
+//     while (Aerror > 180){
+//         Aerror -= 360;
+//     }
+
+//     while (Aerror < -180){
+//         Aerror += 360;
+//     }
+//      if (fabs(Aerror) < 15 && fabs(Aerror) > 0.25)
+//     {
+//       intergal += Aerror;
+//     }
+//     else
+//     {
+//       intergal = 0;
+//     }
+
+//     if (intergal >= 50)
+//     {
+//       intergal = 50;
+//     }
+//     else if (intergal <= -50)
+//     {
+//       intergal = -50;
+//     }
+
+//     // if(sign(errorX)!= xsign && sign(ErrorY)!= ysign ){
+//     //   Controller.Screen.print("done");
+//     //   hypot = -hypot;
+
+
+//     std::cout << Aerror << "\n";
+
+//     ASpeed = Aerror*AKP + AKD*(Aerror-Last_Aerror)+AKI * intergal;
     
-    drive(ASpeed,-ASpeed,0);
+//     drive(ASpeed,-ASpeed,0);
 
+//     Last_Aerror = Aerror;
+
+//     if(fabs(Aerror)<=0.5){
+//       counter = counter +1;
+//     }else{
+//       counter = 0;
+//     }
+//     if(counter == 8){
+//       break;
+//     }
+//     if (timer.time(vex::timeUnits::msec) >= timeLimit)
+//     {
+//       break;
+//     }
+
+//       wait(10,msec);
+//     }
+//   DriveBrake();
+
+// }
+void TTP(float Tx, float Ty, double timeLimit, double flip) {
+  float AKP = 6, AKD = 36, AKI = 0.5;
+  float ASpeed = 0, intergal = 0;
+  float Aerror = 0, Last_Aerror = 0;
+  int counter = 0;
+  bool firstLoop = true;
+  float errHist[5] = {0,0,0,0,0};
+  int histIdx = 0;
+  const int MAXLOG = 400;
+  static float logE[MAXLOG], logU[MAXLOG];
+  int logN = 0;
+  timer timer;
+
+  while (true) {
+    float heading = Gyro.rotation();
+    float errorX = Tx - x;
+    float errorY = Ty - y;
+    float targetHeading = atan2(errorX, errorY) * 180.0 / M_PI - flip;
+    Aerror = targetHeading - heading;
+    while (Aerror > 180) Aerror -= 360;
+    while (Aerror < -180) Aerror += 360;
+
+    if (firstLoop) {                       // no first-loop D kick
+      for (int i = 0; i < 5; i++) errHist[i] = Aerror;
+      Last_Aerror = Aerror;
+      firstLoop = false;
+    }
+    float dErr = (Aerror - errHist[histIdx]) / 5.0f;   // avg change per loop over 5 loops
+    errHist[histIdx] = Aerror;
+    histIdx = (histIdx + 1) % 5;
+
+    if (fabs(Aerror) > 6 || fabs(Aerror) < 0.3) intergal = 0;
+    else if (fabs(dErr) < 0.4) intergal += Aerror;
+    if (sign(Aerror) != sign(Last_Aerror)) intergal = 0;
+    intergal = fmax(-50.0f, fmin(50.0f, intergal));
+
+    float P = Aerror * AKP;
+    float dScale = fmax(0.4f, fmin(1.0f, fabs(Aerror) / 6.0f));
+    float D = AKD * dScale * dErr;
+    float I = AKI * intergal;
+    ASpeed = P + D + I;
+
+    // cap forward power by distance; braking is never limited
+    float vCap = fmax(25.0f, 12.0f * sqrtf(fabs(Aerror)));
+    float s = (Aerror >= 0) ? 1.0f : -1.0f;
+    if (ASpeed * s > vCap) ASpeed = s * vCap;
+
+    drive(ASpeed, -ASpeed, 0);
+    if (logN < MAXLOG) { logE[logN] = Aerror; logU[logN] = ASpeed; logN++; }
+
+    if (fabs(Aerror) <= 0.5 && fabs(dErr) < 0.15) counter++;
+    else counter = 0;
+    if (counter >= 8) break;
     Last_Aerror = Aerror;
-
-    if(fabs(Aerror)<=0.5){
-      counter = counter +1;
-    }else{
-      counter = 0;
-    }
-    if(counter == 8){
-      break;
-    }
-    if (timer.time(vex::timeUnits::msec) >= timeLimit)
-    {
-      break;
-    }
-
-      wait(10,msec);
-    }
+    if (timer.time(vex::timeUnits::msec) >= timeLimit) break;
+    wait(10, msec);
+  }
   DriveBrake();
-
+  for (int i = 0; i < logN; i++) std::cout << logE[i] << "," << logU[i] << "\n";
 }
 void MTPB (float Tx, float Ty, double timeLimit,double Tspeed,double Mspeed,double Acuracy ){
     float LKP = 4.0;
@@ -1767,7 +1975,7 @@ vex::wait(10, vex::timeUnits::msec);
 
 DriveBrake();
 }
-void arcturn3(int r, float targetA, double timeLimit, bool Left ){
+void arcturn3F(int r, float targetA, double timeLimit, bool Left ){
   float width = 14;
   float angle_accuracy = 0.3;
   float heading = Gyro.rotation();
@@ -1885,6 +2093,143 @@ void arcturn3(int r, float targetA, double timeLimit, bool Left ){
     drive(speed*(ratio), 0,1); // turn right at speed
     }else{
     drive(speed*(ratio), speed*(1/ratio),1); // turn right at speed
+
+    }
+    last_error = error;
+    if (fabs(error) <= accuracy + 0.3)
+    {
+      count++;
+    }
+    else
+      count = 0;
+
+    if (timer.time(vex::timeUnits::msec) >= timeLimit)
+    {
+      break;
+    }
+  }
+
+  DriveBrake();
+}
+}
+void arcturn3B(int r, float targetA, double timeLimit, bool Left ){
+  float width = 14;
+  float angle_accuracy = 0.3;
+  float heading = Gyro.rotation();
+  double ratio = fabs(r+width/2/(r-width/2));
+  float error = targetA-heading;
+  float kp = 6;
+  float speed = kp * error;
+  float accuracy = 0.05; // was 0.05
+  float kd = 65;
+  double last_error = 0;
+  double dt = 0.01;
+  double last_speed = 0;
+   double ki = 0.5;
+  double intergal = 0;
+  double count =0;
+    vex::timer timer;
+    timer.clear();
+  if(Left == true){
+  while(fabs(targetA - heading)>=angle_accuracy){
+
+    heading = Gyro.rotation(); // measure the heading of the robot
+    std::cout << heading << "\n";
+    error = targetA - heading;
+
+    if (error > 180)
+    {
+      error = error - 360;
+    }
+    else if (error < -180)
+    {
+      error = error + 360;
+    }
+
+
+
+    if (fabs(error) < 15 && fabs(error) > 0.25)
+    {
+      intergal += error;
+    }
+    else
+    {
+      intergal = 0;
+    }
+
+    if (intergal >= 50)
+    {
+      intergal = 50;
+    }
+    else if (intergal <= -50)
+    {
+      intergal = -50;
+    }
+
+
+    speed = kp * error + kd * (error - last_error)  + ki * intergal;
+    if(r<=7){
+      drive(0, -speed*ratio,1);
+    }else{
+      drive(-speed*(1/ratio), -speed*ratio,1);
+
+    }
+ // turn right at speed
+    last_error = error;
+    if (fabs(error) <= accuracy + 0.3)
+    {
+      count++;
+    }
+    else
+      count = 0;
+
+    if (timer.time(vex::timeUnits::msec) >= timeLimit)
+    {
+      break;
+    }
+
+  }
+  }else{
+  while(fabs(targetA - heading)>=angle_accuracy){
+    heading = Gyro.rotation(); // measure the heading of the robot
+    std::cout << heading << "\n";
+    error = targetA - heading;
+
+    if (error > 180)
+    {
+      error = error - 360;
+    }
+    else if (error < -180)
+    {
+      error = error + 360;
+    }
+
+
+
+    if (fabs(error) < 15 && fabs(error) > 0.25)
+    {
+      intergal += error;
+    }
+    else
+    {
+      intergal = 0;
+    }
+
+    if (intergal >= 50)
+    {
+      intergal = 50;
+    }
+    else if (intergal <= -50)
+    {
+      intergal = -50;
+    }
+
+
+    speed = kp * error + kd * (error - last_error)  + ki * intergal;
+    if(r<=7){
+    drive(-speed*(ratio), 0,1); // turn right at speed
+    }else{
+    drive(-speed*(ratio),-speed*(1/ratio),1); // turn right at speed
 
     }
     last_error = error;
