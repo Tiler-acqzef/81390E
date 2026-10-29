@@ -7,11 +7,11 @@ using namespace vex;
 competition Competition;
 brain Brain;
 controller Controller;
-motor Intake = motor(PORT12, ratio6_1, true);
-motor LeftArm     = motor(PORT11, ratio18_1, true);
-motor RightArm    = motor(PORT20, ratio18_1, false);
-motor LArm = motor(PORT3,ratio18_1,true);
-motor RArm = motor(PORT4,ratio18_1,false);
+motor Intake = motor(PORT15, ratio6_1, true);
+motor LeftArm     = motor(PORT3, ratio18_1, true);
+motor RightArm    = motor(PORT13, ratio18_1, false);
+motor LArm = motor(PORT8,ratio18_1,true);
+motor RArm = motor(PORT7,ratio18_1,false);
 
 // motor LeftFront   = motor(PORT2, ratio6_1, true);
 // motor LeftMiddle  = motor(PORT3, ratio6_1, false);
@@ -20,31 +20,33 @@ motor RArm = motor(PORT4,ratio18_1,false);
 // motor RightMiddle = motor(PORT6, ratio6_1, true);
 // motor RightBack   = motor(PORT4, ratio6_1, false); bajBRWuab meow
 
-motor LeftFront = motor(PORT14, ratio6_1, true); //11
-motor LeftMiddle = motor(PORT9, ratio18_1, true); //12
-motor LeftBack = motor(PORT15, ratio6_1, true); //13
-motor Outake = motor(PORT9,ratio6_1,false);
-motor RightFront = motor(PORT18, ratio6_1, false); //1
-motor RightMiddle = motor(PORT9, ratio18_1, false); //4
-motor RightBack = motor(PORT19, ratio6_1, false); //14
-distance liftSensor = (PORT10);
-distance clawSensor = (PORT21);
-distance Fsensor = (PORT8);
-distance Ssensor = (PORT9);
+motor LeftFront = motor(PORT11, ratio6_1, true); //11
+motor LeftMiddle = motor(PORT21, ratio18_1, true); //12
+motor LeftBack = motor(PORT12, ratio6_1, true); //13
+motor Outake = motor(PORT21,ratio6_1,false);
+motor RightFront = motor(PORT1, ratio6_1, false); //1
+motor RightMiddle = motor(PORT21, ratio18_1, false); //4
+motor RightBack = motor(PORT2, ratio6_1, false); //14
+distance liftSensor = (PORT21);
+distance clawSensor = (PORT10);
+distance Fsensor = (PORT5);
+distance Ssensor = (PORT4);
+distance Ssensor2 = (PORT14);
+
 rotation lift = rotation(PORT16,true);
 
-rotation Arm = rotation(PORT5,true);
-rotation odomX = rotation(PORT7); 
-rotation odomY = rotation(PORT6); 
+rotation Arm = rotation(PORT9,true);
+rotation odomX = rotation(PORT21); 
+rotation odomY = rotation(PORT21); 
 
-pneumatics clamp(Brain.ThreeWirePort.H);
-pneumatics doinkerR(Brain.ThreeWirePort.A);
-pneumatics RotateUP (Brain.ThreeWirePort.A);
-pneumatics Rotatedown (Brain.ThreeWirePort.F);
-inertial Gyro = inertial(PORT17);
-optical OpticalSensor = optical(PORT9);
-vex::aivision AIVision1(PORT9, aivision::ALL_AIOBJS);
-gps GPS = gps(PORT9);
+pneumatics clamp(Brain.ThreeWirePort.A);
+pneumatics doinkerR(Brain.ThreeWirePort.H);
+pneumatics RotateUP (Brain.ThreeWirePort.H);
+pneumatics Rotatedown (Brain.ThreeWirePort.B);
+inertial Gyro = inertial(PORT16);
+optical OpticalSensor = optical(PORT21);
+vex::aivision AIVision1(PORT21, aivision::ALL_AIOBJS);
+gps GPS = gps(PORT21);
 float pi = 3.14159;
 float dia = 2;
 float diaO = 2;

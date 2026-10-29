@@ -1476,21 +1476,22 @@ void Toggle(){
 }
 
 void LIFTWork(){
-if(counter == 0){
-  clamp.set(false);
-  currentState = loading44;
-  toggleState();
-}else if(counter == 26){
-  clamp.set(true);
-  wait(500,msec);
+// if(counter == 0){
+//   clamp.set(false);
+//   currentState = loading44;
+//   toggleState();
+// }else if(counter == 26){
+//   clamp.set(true);
+//   wait(500,msec);
 
-  currentState = idle;
-  toggleState();
-  kyle = true;
-  kyle = false;
-}else{
+//   currentState = idle;
+//   toggleState();
+//   kyle = true;
+//   kyle = false;
+// }else{
+//   clamp.set(!clamp.value());
+// }
   clamp.set(!clamp.value());
-}
 
 
 
@@ -2817,13 +2818,13 @@ void pre_auton(void)
   drawGUI();
   Brain.Screen.pressed(selectAuton);
   vex::thread intakeThread(intakeControl);
-  vex::thread states(loop);
+  // vex::thread states(loop);
 
 
 
     {
 while (true) {
-  liftControl();
+  // liftControl();
  Brain.Screen.printAt(1, 20, "Gyro Rotation: %f", Gyro.rotation());
 wait(10, msec);
 } };
@@ -2855,15 +2856,15 @@ void usercontrol(void)
     Controller.ButtonA.pressed(LIFTWork);
     // Controller.ButtonUp.pressed(position);
     // Controller.ButtonRight.pressed(position2);
-    Controller.ButtonLeft.pressed(position3);
+    // Controller.ButtonLeft.pressed(position3);
 
 
 
-    Controller.ButtonX.pressed(Toggle);
-    Controller.ButtonL2.pressed(doubleToggle); 
-    Controller.ButtonL1.pressed(toggleState); 
-    Controller.ButtonY.pressed(doinkerRtoggle); 
-    Controller.ButtonB.pressed(abc);
+    // Controller.ButtonX.pressed(Toggle);
+    // Controller.ButtonL2.pressed(doubleToggle); 
+    // Controller.ButtonL1.pressed(toggleState); 
+    Controller.ButtonB.pressed(AntlerDEscore); 
+    // Controller.ButtonB.pressed(abc);
   
     // Controller.ButtonDown.pressed(Align);  
     Intake.setVelocity(30,pct);
@@ -2890,26 +2891,26 @@ void usercontrol(void)
 
     while (true)
     {
-      // if(Controller.ButtonL1.pressing()){
+      if(Controller.ButtonL1.pressing()){
 
-      //   LeftArm.spin(reverse,100,pct);
-      //   RightArm.spin(reverse,100,pct);
+        LeftArm.spin(reverse,100,pct);
+        RightArm.spin(reverse,100,pct);
 
 
-      // }else if (Controller.ButtonL2.pressing()){
-      //   if (LeftArm.position(deg)>=-10){
-      //   LeftArm.stop(hold);
-      //   RightArm.stop(hold);
-      //   }else{
-      //   LeftArm.spin(fwd,100,pct);
-      //   RightArm.spin(fwd,100,pct);
-      //   }
+      }else if (Controller.ButtonL2.pressing()){
+        if (LeftArm.position(deg)>=-10){
+        LeftArm.stop(hold);
+        RightArm.stop(hold);
+        }else{
+        LeftArm.spin(fwd,100,pct);
+        RightArm.spin(fwd,100,pct);
+        }
 
-      // }else{
-      //   LeftArm.stop(hold);
-      //   RightArm.stop(hold);
+      }else{
+        LeftArm.stop(hold);
+        RightArm.stop(hold);
 
-      // }
+      }
       // if(Controller.ButtonL2.pressing()){
       //   LArm.spin(fwd,70,pct);
       //   RArm.spin(fwd,70,pct);
@@ -2924,20 +2925,20 @@ void usercontrol(void)
       // else{
       //   LArm.spin(reverse,0.5,pct);
       //   RArm.spin(reverse,0.5,pct);
-      // }
-      // if(Controller.ButtonX.pressing()){
-      //   LArm.spin(fwd,100,pct);
-      //   RArm.spin(fwd,100,pct);
+      // // }
+      if(Controller.ButtonX.pressing()){
+        LArm.spin(fwd,100,pct);
+        RArm.spin(fwd,100,pct);
 
-      // }else if (Controller.ButtonY.pressing()){
-      //   LArm.spin(reverse,100,pct);
-      //   RArm.spin(reverse,100,pct);
+      }else if (Controller.ButtonY.pressing()){
+        LArm.spin(reverse,100,pct);
+        RArm.spin(reverse,100,pct);
 
-      // }else{
-      //   LArm.stop(hold);
-      //   RArm.stop(hold);
+      }else{
+        LArm.stop(hold);
+        RArm.stop(hold);
 
-      // }
+      }
     if(height == true){
       Controller.Screen.setCursor(5, 0);
       Controller.Screen.print("Height: True");
@@ -2947,15 +2948,15 @@ void usercontrol(void)
       Controller.Screen.print("Height: False");
     }
 
-    if(Controller.ButtonUp.pressing()){
-      position();
-    }
-    if(Controller.ButtonRight.pressing()){
-      position2();
-    }
-    if(Controller.ButtonDown.pressing()&&!Controller.ButtonB.pressing()){
-      position4();
-    }
+    // if(Controller.ButtonUp.pressing()){
+    //   position();
+    // }
+    // if(Controller.ButtonRight.pressing()){
+    //   position2();
+    // }
+    // if(Controller.ButtonDown.pressing()&&!Controller.ButtonB.pressing()){
+    //   position4();
+    // }
 
 
     
@@ -2965,7 +2966,7 @@ void usercontrol(void)
     Brain.Screen.printAt(25,175,"Ox:%.2f",(odomX.position(rev)));
     Brain.Screen.printAt(25,175,"position:%.2f",(counter));
 
-      liftControl();
+      // liftControl();
       Drive_UserControl();
       Intake_UserControl();
 
