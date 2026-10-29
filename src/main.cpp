@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =8;
+int AutonomousMode =6;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -265,7 +265,7 @@ void toggleState() {
             DriveBrake();
             break;
             case loading3:
-            currentState = loading52;
+            currentState = loading5;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
@@ -642,7 +642,7 @@ void toggleState() {
             Akp = 0.2;
             Akd = 0.75;
             Aki = 0.00;
-            targetA = 119.5;
+            targetA = 100.5;
             targetL = 5;
             Rotatedown.open();
             counter = 15;
@@ -652,9 +652,9 @@ void toggleState() {
             Akp = 0.2;
             Akd = 0.75;
             Aki = 0.00;
-            inchDriveC3(2.8,400,1);
+            inchDriveC3(1.8,400,1);
             DriveBrake();
-            targetA = 80.5;
+            targetA = 88.5;
             targetL = 5;
             wait(100,msec);
             clamp.open();
@@ -678,7 +678,7 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 65;
 
-            targetA = 120;
+            targetA = 122;
             wait(100,msec);
             clamp.open();
             break;
@@ -716,7 +716,7 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 100;
             Controller.rumble("......");
-;
+
             targetA = 139;
             targetL = 18;
             wait(100,msec);
@@ -743,7 +743,7 @@ void toggleState() {
             counter = 19;
 
             targetA = 14;
-            targetL = 13.8;
+            targetL = 15.8;
             if(Rotatedown.value()==1){
               wait(100,msec);
               Rotatedown.close();
@@ -769,15 +769,17 @@ void toggleState() {
             counter = 20;
             targetL = 5;  
             Rotatedown.open();
+            wait(100,msec);
+            targetA = 119.5;
             break;
           case loading34:
             currentState = idle;
-            Akp = 0.2;
+            Akp = 0.15;
             Akd = 0.75;
             Aki = 0.00;
             inchDriveC3(2,400,1);
             DriveBrake();
-            targetA = 100.5;
+            targetA = 80.5;
             targetL = 5;
             wait(100,msec);
             clamp.open();
@@ -789,10 +791,10 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 65;
             Controller.rumble("...");
-
             Akp = 0.15;
             Akd = 0.75;
-            targetA = 153;
+
+            targetA = 149;
             targetL = 5.00;
 
             counter = 21;
@@ -804,7 +806,7 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 65;
 
-            targetA = 125;
+            targetA = 120;
             wait(100,msec);
             Rotatedown.open();
             clamp.open();
@@ -830,7 +832,7 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 65;
             targetL = 10.90;
-            targetA = 125;
+            targetA = 120;
             wait(100,msec);
             Rotatedown.open();
             clamp.open();
@@ -858,7 +860,7 @@ void toggleState() {
             cap = 65;
   
             targetL = 17;
-            targetA = 125;
+            targetA = 120;
             wait(200,msec);
             Rotatedown.open();
             clamp.open();
@@ -1147,12 +1149,7 @@ void idlePosition(){
       toggleState();
 
     }
-    if(counter == 20){
-      wait(100,msec);
 
-      targetA = 119.5;
-
-    }
     if (counter == 0&&targetA!=4){
       wait(600,msec);
       if(counter ==0){
@@ -2375,51 +2372,19 @@ void autonomous(void)
     Intake.setVelocity(10,pct);
     Gyro.setRotation(0,deg);
     backside = true;
-    currentState = loading19;
-    toggleState();
+
     Akp = 0.0;
     Akd = 0.0;
   
     x=0;
     y=0;
-
-    inchDriveC2(-22.3,1200,52,60,5,51,0,51);
-
-    Rotatedown.open();
-    clamp.open();
-    wait(300,msec);
-
-
-
-
-    inchDriveC(4,250,0.8,60);
-    currentState = idle;
+    inchDriveC(4,250,1,60);
+    currentState = loading;
     toggleState();
-    TTP(-13.5,-0,1000000,180);
-    inchDriveC(-4,1000,0.6,40);
-    TTP(-13.5,2,10000,180);
-    inchDriveC(-20,1200,0.8,60);
-    gyroTurnF(90,1,0.5,1400);
-    currentState = loading31;
-    toggleState();
-    MTP(-2,-2,1500);
-    MTPB(29,-18,1500,80,30);
+    inchDriveCW(25,3000,1,20,0,16,1,0);
+    DriveBrake();
+    wait(100,msec);    
     doubleToggle();
-    wait(300,msec);
-    inchDriveC(2,250,1,80);
-    currentState = idle;
-    toggleState();
-    TTP(29,-1,10000,180);
-    inchDriveC(-5,1000,0.6,40);
-    TTP(29,2,10000,180);
-    inchDriveC(-20,1200,0.8,60);
-    MTP(10,-10,1500);
-    currentState = loading49;
-    toggleState();
-    // MTP(0,-14,1200);
-    MTPB(33,-16,1500,80,40);
-    toggleState();
-    // doubleToggle();
 
 
 
@@ -2518,7 +2483,7 @@ void autonomous(void)
     x=0;
     y=0;
 
-     inchDriveC2(-22.3,1200,52,60,5,47,0,47);
+     inchDriveC2(-22.3,1200,52,60,5,44.5,0,44.5);
 
     Rotatedown.open();
     clamp.open();
@@ -2561,9 +2526,8 @@ void autonomous(void)
     toggleState();
     Akp = 0.15;
     Akd = 0.55;
-    TTP(-22,-14,1000000,180);
-
-    inchDriveC(-19,1400,0.8,40);
+    gyroTurnF(-90,1,0.5,1500);
+    inchDriveCW(-25, 1500, 1, 20, 0, 16.4, 1, -90);
     DriveBrake();
     doubleToggle();
     gyroTurnF(-90,1,0.5,500);
@@ -2581,7 +2545,7 @@ void autonomous(void)
     inchDriveC(12,1500,0.8,60);
     currentState = loading49;
     toggleState();
-    TTP(-22,-14,1000000,180);
+    TTP(-22,-12,1000000,180);
 
     inchDriveC(-30,1400,0.8,40);
     currentState = loading51;
@@ -2600,7 +2564,7 @@ void autonomous(void)
     inchDriveC(12,1500,0.8,60);
     currentState = loading25;
     toggleState();
-    TTP(-22,-13.5,1000000,180);
+    TTP(-22,-12.5,1000000,180);
 
     inchDriveC(-30,1400,0.8,40);
     inchDriveC(2,150,0.8,60);
@@ -2608,7 +2572,7 @@ void autonomous(void)
     doubleToggle();
     wait(300,msec);
     gyroTurnF(-90,1,0.5,500);
-    inchDriveDF(7.5,1000,1,40);
+    inchDriveDF(8.5,1000,1,40);
     acuracy = 2.0;
 
     currentState = idle;
@@ -2621,14 +2585,14 @@ void autonomous(void)
     currentState = loading27;
     toggleState();
 
-    TTP(-22,-13.5,1000000,180);
+    TTP(-22,-12,1000000,180);
 
     inchDriveC(-30,1400,0.8,20);
     DriveBrake();
     doubleToggle();
     wait(300,msec);
     gyroTurnF(-90,1,0.5,500);
-    inchDriveDF(7.5,1000,1,40);
+    inchDriveDF(8.5,1000,1,40);
     acuracy = 2.0;
 
     currentState = idle;
@@ -2641,7 +2605,7 @@ void autonomous(void)
     currentState = loading29;
     toggleState();
 
-    TTP(-22,-13.5,1000000,180);
+    TTP(-22,-12,1000000,180);
 
     inchDriveC(-30,1400,0.8,40);
     inchDriveC(2,150,0.8,60);
@@ -2657,23 +2621,21 @@ void autonomous(void)
     gyroTurnF(180,1.0,0.2,1500);
     inchDriveD(1.6,1000,1,40);
     wait(100,msec);
-    inchDriveC(14,1500,1,60);
+    inchDriveC(5,500,1,60);
 
-    TTP(-43.5,-39,3000);
     currentState = loading;
     toggleState(); 
+    inchDriveCW(24,3000,1,20,0,16.4,1,180);
     wait(100,msec);
 
-    inchDriveC(15,1500,0.5,20);
     DriveBrake();
     doubleToggle();
     wait(200,msec);
-    DriveBrake();
     currentState = idle;
     toggleState();
 
 
-    inchDriveC(-9,500,0.6,40);
+    inchDriveCW(-24,3000,1,20,0,4.7,1,180);
     DriveBrake();
     clamp.open();
 
@@ -2683,8 +2645,27 @@ void autonomous(void)
     wait(100,msec);
     inchDriveC(10,500,1,60);
 
-    TTP(-43.5,-33,3000);
     currentState = loading3;
+    toggleState(); 
+    wait(500,msec);
+    inchDriveCW(24,3000,1,20,0,16.4,1,180);
+    wait(100,msec);
+
+    DriveBrake();
+    doubleToggle();
+    wait(200,msec);
+    currentState = idle;
+    toggleState();
+
+
+    inchDriveCW(-24,3000,1,20,0,4.7,1,180);
+    inchDriveD(1.6,1000,0.6,40);
+    clamp.close();
+    wait(100,msec);
+    inchDriveC(10,500,1,60);
+
+    TTP(-43.5,-33,3000);
+    currentState = loading52;
     toggleState(); 
     wait(500,msec);
 
@@ -2692,7 +2673,8 @@ void autonomous(void)
 
     inchDriveC(19,1500,0.5,15);
     DriveBrake();
-    doubleToggle();
+    currentState = loading53;
+    toggleState();
     wait(300,msec);
     DriveBrake();
     currentState = idle;
@@ -2700,103 +2682,17 @@ void autonomous(void)
     inchDriveC(-9,500,0.6,40);
     
 
-    // inchDriveC(-10,1500,0.6,40);
-    // DriveBrake();
-    // clamp.open();
-
-
-    // gyroTurnF(180);
-    // inchDriveD(1.6,1000,1,40);
-
-    // clamp.close();
-    // wait(100,msec);
-    // inchDriveC(10,500,1,60);
-
-    // TTP(-43.5,-32,3000);
-    // currentState = loading5;
-    // toggleState(); 
-    // wait(800,msec);
-
-
-    
-
-    // inchDriveC(18,1500,0.5,15);
-    // inchDriveC(-7,1000,0.5,10);
-    // DriveBrake();
-    // doubleToggle();
-    // wait(100,msec);
-    // DriveBrake();
-    // inchDriveC(-5,500,0.6,40);
-    // currentState = idle;
-    // toggleState();
-    // clamp.open();
-
-
-    // inchDriveC(-10,1100,0.6,40);
-    // clamp.open();
-
-    // DriveBrake();
-
-    // gyroTurnF(180);
-    // inchDriveC(-12,1000,0.5,30);
-    // clamp.close();
-    // wait(100,msec);
-    // inchDriveC(10,500,1,60);
-
-    // TTP(-43,-32,3000);
-    // currentState = low;
-    // toggleState(); 
-
-    
-
-    // inchDriveC(20,1500,0.4,10);
-    // DriveBrake();
-    // doubleToggle();
-    // wait(100,msec);
-    // DriveBrake();
-    // inchDriveC(-5,500,0.6,40);
-    // currentState = idle;
-    // toggleState();
-
-    // clamp.open();
-
-    // inchDriveC(-13,1500,0.6,40);
-    // DriveBrake();
-
-    // gyroTurnF(180);
-    // inchDriveD(1.7,1000,1,40);
-    // clamp.close();
-    // wait(100,msec);
-    // inchDriveC(10,500,1,60);
-
-    // TTP(-43.5,-32,3000);
-    // currentState = middle;
-    // toggleState(); 
-
-
-    // inchDriveC(20,1500,0.4,10);
-    // DriveBrake();
-    // doubleToggle();
-    // wait(100,msec);
-    // DriveBrake();
-    // inchDriveC(-5,500,0.6,40);
-
-    // toggleState();
-
-    // inchDriveC(-13,1000,0.6,40);
-    // DriveBrake();
-
-    // gyroTurnF(180);
-    // MTP(-58,-60,2400);
-    // gyroTurnF(-90);
-    // ToggleLeft();
-    // toggleState();
-    // Akp = 0.4;
-    // Akd = 1;
-    // Aki = 0;
-    // wait(900,msec);
-    // inchDriveC(-40,1000,0.8,40);
-    // DriveBrake();
+    gyroTurnF(180);
+    MTP(-58,-60,2400);
+    gyroTurnF(-90);
+    ToggleLeft();
+    toggleState();
+    Akp = 0.4;
+    Akd = 1;
+    Aki = 0;
+    wait(900,msec);
+    inchDriveC(-40,1000,0.8,40);
+    DriveBrake();
 
     break; 
     
@@ -2885,7 +2781,7 @@ void usercontrol(void)
     
     Intake.setVelocity(100,pct);
 
-    acuracy = 1.8;
+    acuracy = 2.0;
     Gyro.setRotation(0,deg);
 
     while (true)

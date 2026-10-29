@@ -236,7 +236,113 @@ void inchDriveDF(float target, float timeLimit, float mspeed, float chainspeed, 
     std::cout << x << std::endl;
   }
 }
+float wrapAngle(float a){
+  while (a > 180)   a -= 360;
+  while (a <= -180) a += 360;
+  return a;
+}
 
+void inchDriveCW(float target, float timeLimit, float mspeed, float chainspeed, int c,
+                 float sideTarget, int wallDir, double wallHeading){
+  float heading = 0;
+  float angle_error = 0;
+  float angle_last_error = 0;
+  float angleP = 2;
+  float turn_speed = 0;
+  float angleD = 0.2;
+  RightFront.setPosition(0, rev);
+  RightBack.setPosition (0,rev);
+  float x = 0;
+  float error = target;
+  float kp = 7;
+  float speed = kp * error;
+  float accuracy = 0.2;
+  float kd = 0.4;
+  float ki = 1.05;              
+  float integral = 0;
+  float integral_limit = 30;    
+  float integral_band = 3;    
+  double last_error = 0;
+  double dt = 0.01;
+
+  // wall-following setup
+  float sideKp = 6;                 // deg of heading offset per inch of side error
+  float minOffset = 2.5;            // deg, minimum offset so the robot actually turns
+  float sideTol = 0.25;             // in, stop correcting inside this band
+  float maxOffset = 35;             // max heading offset (deg)
+  float fadeDist = 4;               // fade offset out within this many inches of target
+  int driveDir = (target >= 0) ? 1 : -1;
+  float lastSide = sideTarget;      // used if a sensor read is bad
+  float sideOffset = 0;
+  float sideError = 0;
+
+  vex::timer timer;
+  timer.clear();
+  while (fabs(error) >= accuracy){
+    heading = Gyro.rotation();
+    x = ((RightFront.position(rev)+RightBack.position(rev))/2) * pi * dia * gearRatio;
+    error = target - x;
+
+    // side distance -> heading offset
+    float side = Ssensor.objectDistance(inches);
+    if (side <= 0 || side > 40) side = lastSide;          // reject bad / out-of-range reads
+    lastSide = side;
+    float phi = wrapAngle(heading - wallHeading) * pi / 180.0;   // robot angle relative to wall
+    float perp = side * cos(phi);                         // slant-corrected distance
+    sideError = perp - sideTarget;                        // + = too far from wall
+
+    if (fabs(sideError) > sideTol){
+      float mag = sideKp * fabs(sideError) + minOffset;
+      sideOffset = wallDir * driveDir * (sideError > 0 ? mag : -mag);
+    } else {
+      sideOffset = 0;                                     // on the line, hold heading
+    }
+    if (sideOffset > maxOffset) sideOffset = maxOffset;
+    if (sideOffset < -maxOffset) sideOffset = -maxOffset;
+    // only fade out near the end if already close to the wall target
+    if (fabs(error) < fadeDist && fabs(sideError) < 1.0){
+      sideOffset *= fabs(error) / fadeDist;
+    }
+
+    angle_error = wrapAngle((wallHeading + sideOffset) - heading);   // shortest path to target heading
+
+    if (fabs(error) < integral_band){
+      integral += error * dt;
+    } else {
+      integral = 0; 
+    }
+    float integral_term = ki * integral;
+    if (integral_term > integral_limit) integral_term = integral_limit;
+    if (integral_term < -integral_limit) integral_term = -integral_limit;
+
+    speed = kp * error + kd * (error - last_error) / dt + integral_term;
+
+    turn_speed = angleP * angle_error + angleD * (angle_error - angle_last_error) / dt;
+    if (speed >= 100){
+      speed = 100;
+    }else if (speed <= -100){
+      speed = -100;
+    }
+    if(mspeed >=0&&mspeed <= chainspeed){
+    if (fabs(speed) < chainspeed )
+    {
+      if (speed > 0){
+        speed = chainspeed;
+      }else{
+        speed = (-1*chainspeed);
+      }
+    }
+    }
+    std::cout << error << " " << sideError << std::endl;   // distance error, side error
+
+    drive(mspeed*(speed+turn_speed), mspeed*(speed-turn_speed), 10);
+    last_error = error;
+    angle_last_error = angle_error;
+    if (timer.time(vex::timeUnits::msec) >= timeLimit){
+      break;
+    }
+  }
+}
 void inchDriveD(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
   float heading = 0;
   float angle_error = 0;
