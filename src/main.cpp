@@ -2893,17 +2893,17 @@ void usercontrol(void)
     {
       if(Controller.ButtonL1.pressing()){
 
-        LeftArm.spin(reverse,100,pct);
-        RightArm.spin(reverse,100,pct);
+        LeftArm.spin(fwd,100,pct);
+        RightArm.spin(fwd,100,pct);
 
 
       }else if (Controller.ButtonL2.pressing()){
-        if (LeftArm.position(deg)>=-10){
+        if (LeftArm.position(deg)<=10){
         LeftArm.stop(hold);
         RightArm.stop(hold);
         }else{
-        LeftArm.spin(fwd,100,pct);
-        RightArm.spin(fwd,100,pct);
+        LeftArm.spin(reverse,100,pct);
+        RightArm.spin(reverse,100,pct);
         }
 
       }else{
