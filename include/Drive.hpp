@@ -55,6 +55,8 @@ void inchDriveC2(float target, float timeLimit,double mspeed = 100, double targe
 void inchDriveO(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
 void arcturn(float target, float arcdegree, float timeLimit, int b = 1.5, int c = 0);
 void icc_tracking();
+void offsetTest(float angle);
+
 int sign(float a);
 void MTP (float Tx, float Ty, double timeLimit);
 void TTP (float Tx, float Ty, double timeLimit,double flip =0);

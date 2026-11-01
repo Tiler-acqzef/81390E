@@ -1007,14 +1007,21 @@ void arcturn(float target, float arcdegree, float timeLimit, int b , int c )
   }
   DriveBrake();
 }
+// Tracking wheel offsets (inches), measured from pivot tests
+// fwdWheelOffset:    + if the forward wheel (odomX) is RIGHT of center
+// strafeWheelOffset: + if the strafe wheel (odomY) is AHEAD of center
+const float fwdWheelOffset    = -0.72;
+const float strafeWheelOffset = 1.52;
+bool useOffsets = true;   // set false to compare uncorrected
+
 void icc_tracking() {
 
     float prevHeading = Gyro.rotation() * pi / 180.0;
 
     odomX.resetPosition();
     odomY.resetPosition();
-    float prevOdomRev = odomX.position(rev);
-    float prevOdomYRev = -odomY.position(rev);
+    double prevOdomRev  = odomX.position(rev);
+    double prevOdomYRev = -odomY.position(rev);
 
     const float dt = 0.01;
     const float kThetaEpsilon = 1e-6;
@@ -1023,8 +1030,11 @@ void icc_tracking() {
 
         float heading = Gyro.rotation() * pi / 180.0;
 
-        float distance = (odomX.position(rev) - prevOdomRev) * dia * pi;
-        float horizontalDistance = (-odomY.position(rev) - prevOdomYRev) * dia * pi;
+        double odomRev  = odomX.position(rev);
+        double odomYRev = -odomY.position(rev);
+
+        float distance           = (odomRev  - prevOdomRev)  * diaO * pi;
+        float horizontalDistance = (odomYRev - prevOdomYRev) * diaO * pi;
 
         float dTheta = heading - prevHeading;
 
@@ -1034,22 +1044,28 @@ void icc_tracking() {
         while (dTheta < -pi)
             dTheta += 2 * pi;
 
+        // remove the part of each wheel's travel caused by rotation
+        if (useOffsets) {
+            distance           += fwdWheelOffset    * dTheta;
+            horizontalDistance -= strafeWheelOffset * dTheta;
+        }
+
         if (fabs(dTheta) > kThetaEpsilon) {
 
-            float R = distance / dTheta;
+            float R  = distance / dTheta;
             float Rs = horizontalDistance / dTheta;
 
             // forward (arc) contribution
             x -= R * (cos(heading) - cos(prevHeading));
             y -= R * (sin(prevHeading) - sin(heading));
 
-            // strafe (arc) contribution — perpendicular to forward
+            // strafe (arc) contribution
             x += Rs * (sin(heading) - sin(prevHeading));
             y += Rs * (cos(heading) - cos(prevHeading));
 
         } else {
 
-            // forward (straight) contribution — sign corrected to match arc-branch limit
+            // forward (straight) contribution
             x += distance * sin(heading);
             y += distance * cos(heading);
 
@@ -1059,12 +1075,19 @@ void icc_tracking() {
 
         }
 
-        prevHeading = heading;
-        prevOdomRev = odomX.position(rev);
-        prevOdomYRev = -odomY.position(rev);
+        prevHeading   = heading;
+        prevOdomRev   = odomRev;
+        prevOdomYRev  = odomYRev;
 
         wait(dt, seconds);
     }
+}
+void offsetTest(float angle) {
+  wait(300, msec);
+  float x0 = x, y0 = y;
+  gyroTurnF(angle, 1, 0.5, 3000, 0);
+  wait(300, msec);                       // let it settle
+  std::cout << angle << " deg: dx=" << x - x0 << " dy=" << y - y0 << "\n";
 }
 int sign(float a){
     if(a>0){

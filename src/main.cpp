@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =6;
+int AutonomousMode =8;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -2311,46 +2311,6 @@ void autonomous(void)
 
 
 
-    inchDriveC3(5,450,0.6);
-    DriveBrake();
-    intakeState = -1;
-    wait(500,msec);
-
-
-
-    inchDriveC3(-5,250,1);
-    wait(200,msec);
-    currentState = loading7;
-    toggleState();
-    gyroTurnF(45);
-
-    MTP(23, 7, 2000);
-
-    gyroTurnF(180);
-    // targetL = 350;
-
-    inchDriveC3(20,700,0.8);
-    inchDriveC3(-5,250,1);
-    inchDriveC3(10,600,1);
-
-    MTPB(55, 14, 2000,50);
-    targetA = 28;
-    wait(700,msec);
-    LIFTWork();
-    inchDriveC3(10,600,1);
-    targetA = 5;
-    MTPB(-3, 22.5, 2000,60);
-    inchDriveC3(-2,600,0.4);
-    DriveBrake();
-
-    LIFTWork();
-    targetA = 70;
-    MTPB(0, 10, 2000,60);
-
-
-
-
-
 
 
 
@@ -2483,7 +2443,7 @@ void autonomous(void)
     x=0;
     y=0;
 
-     inchDriveC2(-22.3,1200,52,60,5,44.5,0,44.5);
+     inchDriveC2(-22.3,1200,52,60,5,49.5,0,49.5);
 
     Rotatedown.open();
     clamp.open();
@@ -2520,7 +2480,7 @@ void autonomous(void)
 
     acuracy = 2.30;
 
-    TTP(-44.9,-11,13000,180);
+    TTP(-47,-11,13000,180);
     inchDriveCE(-30,1500,0.6,10);
     currentState = loading21;
     toggleState();
@@ -2547,7 +2507,7 @@ void autonomous(void)
     toggleState();
     TTP(-22,-12,1000000,180);
 
-    inchDriveC(-30,1400,0.8,40);
+    inchDriveCW(-32, 1500, 1, 20, 0, 17, 1, -90);
     currentState = loading51;
     toggleState();
     wait(300,msec);
@@ -2564,9 +2524,10 @@ void autonomous(void)
     inchDriveC(12,1500,0.8,60);
     currentState = loading25;
     toggleState();
+    Akp = 0.15;
     TTP(-22,-12.5,1000000,180);
 
-    inchDriveC(-30,1400,0.8,40);
+    inchDriveCW(-32, 1500, 1, 20, 0, 16.4, 1, -90);
     inchDriveC(2,150,0.8,60);
     DriveBrake();
     doubleToggle();
@@ -2584,10 +2545,12 @@ void autonomous(void)
     inchDriveC(15,1500,0.8,60);
     currentState = loading27;
     toggleState();
-
+    Akp = 0.15;
     TTP(-22,-12,1000000,180);
 
-    inchDriveC(-30,1400,0.8,20);
+    inchDriveCW(-32, 1500, 1, 20, 0, 16, 1, -90);
+    inchDriveC(2,150,0.8,60);
+
     DriveBrake();
     doubleToggle();
     wait(300,msec);
@@ -2607,7 +2570,7 @@ void autonomous(void)
 
     TTP(-22,-12,1000000,180);
 
-    inchDriveC(-30,1400,0.8,40);
+    inchDriveCW(-32, 1500, 1, 20, 0, 16.4, 1, -90);
     inchDriveC(2,150,0.8,60);
     DriveBrake();
     doubleToggle();
@@ -2625,7 +2588,8 @@ void autonomous(void)
 
     currentState = loading;
     toggleState(); 
-    inchDriveCW(24,3000,1,20,0,16.4,1,180);
+    inchDriveCW(24,3000,1,20,0,17,1,180);
+    inchDriveC(3,100,1,80);
     wait(100,msec);
 
     DriveBrake();
@@ -2634,7 +2598,7 @@ void autonomous(void)
     currentState = idle;
     toggleState();
 
-
+   wait(600,msec); 
     inchDriveCW(-24,3000,1,20,0,4.7,1,180);
     DriveBrake();
     clamp.open();
@@ -2643,12 +2607,14 @@ void autonomous(void)
     inchDriveD(1.6,1000,0.6,40);
     clamp.close();
     wait(100,msec);
-    inchDriveC(10,500,1,60);
-
+    inchDriveC(5,500,1,60);
+    DriveBrake();
     currentState = loading3;
     toggleState(); 
     wait(500,msec);
-    inchDriveCW(24,3000,1,20,0,16.4,1,180);
+    inchDriveCW(24,3000,1,20,0,17,1,180);
+    inchDriveC(3,100,1,80);
+
     wait(100,msec);
 
     DriveBrake();
