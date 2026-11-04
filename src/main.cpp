@@ -2873,8 +2873,8 @@ void usercontrol(void)
         currentState = idle;
         toggleState();
         }else{
-        LeftArm.spin(reverse,60,pct);
-        RightArm.spin(reverse,60,pct);
+        LeftArm.spin(reverse,80,pct);
+        RightArm.spin(reverse,80,pct);
         
           back = true;
           Lfwd = false;
