@@ -171,7 +171,7 @@ void inchDriveCE(float target, float timeLimit, float mspeed, float chainspeed, 
     if (timer.time(vex::timeUnits::msec) >= timeLimit){
       break;
     }
-    std::cout << x << std::endl;
+    // std::cout << x << std::endl;
   }
 }
 void inchDriveDF(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
@@ -233,7 +233,7 @@ void inchDriveDF(float target, float timeLimit, float mspeed, float chainspeed, 
     if (timer.time(vex::timeUnits::msec) >= timeLimit){
       break;
     }
-    std::cout << x << std::endl;
+    // std::cout << x << std::endl;
   }
 }
 float wrapAngle(float a){
@@ -333,7 +333,7 @@ void inchDriveCW(float target, float timeLimit, float mspeed, float chainspeed, 
       }
     }
     }
-    std::cout << error << " " << sideError << std::endl;   // distance error, side error
+    // std::cout << error << " " << sideError << std::endl;   // distance error, side error
 
     drive(mspeed*(speed+turn_speed), mspeed*(speed-turn_speed), 10);
     last_error = error;
@@ -402,7 +402,7 @@ void inchDriveD(float target, float timeLimit, float mspeed, float chainspeed, d
     if (timer.time(vex::timeUnits::msec) >= timeLimit){
       break;
     }
-    std::cout << x << std::endl;
+    // std::cout << x << std::endl;
   }
 }
 void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
