@@ -101,7 +101,7 @@ void selectAuton()
 bool flip = false;
 double counter = 0;
 
-bool backside = true;
+bool backside = false;
 
 double targetL = 5.0;
 double targetA = 10;
@@ -188,43 +188,32 @@ void toggleState() {
             RightArm.setVelocity(20,pct);
             Intake.setVelocity(100,pct);
             cap = 25;
-            counter = 0;
+            counter = 90;
             kp = 10;
             kd = 0;  
           Akp = 0.15;
             Akd = 0.55;
             Aki = 0.0;
-            targetL = 5.0;
+            Rotatedown.close();
+
+            targetA = 10;
           
 
 
             if (!backside) {
           if (!flip) {
-              if (!height) {
-                  currentState = loading;
-              } else {
-                  currentState = loading7;
-              }
+              currentState = loading;
           } else {
-              if (!height) {
-                  currentState = low;
-              } else {
-                  currentState = loading11;
-              }
+              currentState = loading2;
+ 
           }
       } else {
           if (!flip) {
-              if (!height) {
-                  currentState = loading19;
-              } else {
-                  currentState = loading31;
-              }
+              currentState = loading3;
+
           } else { 
-              if (!height) {
-                  currentState = loading25;
-              } else {
-                  currentState = loading35;
-              }
+              currentState = loading4;
+
           }
       }
 
@@ -234,38 +223,29 @@ void toggleState() {
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
-            currentState = loading3;
             counter = 1;
 
             cap = 65;
-            Akp = 0.09;
 
 
-            targetA = 295;
-            targetL = 6.5;
+            targetA = 10;
+
             Controller.rumble(".");
             
             break; // old 24
           case loading2:
-            currentState = idle;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
-            targetL = 5.0;
 
-            wait(250,msec);
 
-            targetA = 360;
-            inchDriveC(-2,250,0.6,40);
-            DriveBrake();
-
-            clamp.open();
+            targetA = 280;
+            counter = 2;
 
             DriveBrake();
             break;
             case loading3:
-            currentState = loading52;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
@@ -274,14 +254,11 @@ void toggleState() {
 
 
 
-            targetA = 295;
-            wait(100,msec);
-            Rotatedown.open();
-            Controller.rumble("..");
-            counter = 2;
+            targetA = 185;
+
+            counter = 3;
             break; 
             case loading4:
-            currentState = idle;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
@@ -289,15 +266,10 @@ void toggleState() {
 
 
       
-            targetL = 10.3;
-            wait(100,msec);
-            targetA = 310;
-            wait(200,msec);
-            inchDriveC(-2,250,1,40);
-            DriveBrake();
+            targetA = 97;
 
+            counter = 4;
 
-            clamp.open();
 
             break; 
             case loading5:
@@ -306,17 +278,10 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
-            // targetL = 5;
-            // targetA = 187;
-            Akp = 0.25;
-            Akd = 0.55;
-            Aki = 0.0;
 
-            targetL = 13;
-            targetA = 260;
-            Rotatedown.open();
+            targetA = 19;
 
-            counter = 3;
+            counter = 9;
             Controller.rumble("...");
 
             break; 
@@ -1091,89 +1056,94 @@ void toggleState() {
 }
 bool kyle = 0;
 bool autorun = false;
+bool back = false;
 float acuracy = 1.8;
+float prevApos = Arm.position(deg);
 void idlePosition(){
-    if(counter == 0||counter == 26|| counter== 27){
-    if (!backside) {
+
+        if (!backside) {
           if (!flip) {
-              if (!height) {
-                  currentState = loading;
-              } else {
-                  currentState = loading7;
-              }
+              currentState = loading;
           } else {
-              if (!height) {
-                  currentState = low;
-              } else {
-                  currentState = loading11;
-              }
+              currentState = loading2;
+ 
           }
       } else {
           if (!flip) {
-              if (!height) {
-                  currentState = loading21;
-              } else {
-                  currentState = loading31;
-              }
+              currentState = loading4;
+
           } else { 
-              if (!height) {
-                  currentState = loading25;
-              } else {
-                  currentState = loading35;
-              }
+              currentState = loading3;
+
           }
       }
-    }
-    if(counter == 1&&Rotatedown.value() == 0){
-        wait(600,msec);
+    if(counter == 2&&Rotatedown.value() == 0){
+        wait(400,msec);
         Rotatedown.open();
     }
     
-    if(Rotatedown.value() == 1){
-      if(counter == 14||counter == 11){
-        wait(100,msec);
+    if(counter == 1 &&Rotatedown.value() == 1){
+        wait(400,msec);
         Rotatedown.close();
-      }
+      
     }
-    if(counter == 16||counter == 7||counter ==21){
-      if(Rotatedown.value()== 0)
-        wait(100,msec);
+    if(counter == 4&&Rotatedown.value() == 0){
+        wait(400,msec);
         Rotatedown.open();
     }
-    if(counter == 0 && clawSensor.objectDistance(inches)<=acuracy&&clamp.value() == 1){
-      clamp.set(false);
+    
+    if(counter == 3 &&Rotatedown.value() == 1){
+        wait(400,msec);
+        Rotatedown.close();
+      
+    }
+    // if(counter == 16||counter == 7||counter ==21){
+    //   if(Rotatedown.value()== 0)
+    //     wait(100,msec);
+    //     Rotatedown.open();
+    // }
+    // if(back == true&&fabs(prevApos - Arm.position(deg))>=0.6){
+    //   clamp.set(false);
+    //   counter = 0; 
+    //   wait(1000,msec);
+    // }
+    if(clawSensor.objectDistance(inches)<=acuracy&&counter==0&&clamp.value()!=1&&back != true){
+      clamp.set(true);
+      wait(200,msec);
+      currentState = loading5;
+      toggleState();
       wait(100,msec);
-      currentState = loading44;
-      toggleState();
-
-    }
-    if(counter == 20){
-      wait(100,msec);
-
-      targetA = 119.5;
-
-    }
-    if (counter == 0&&targetA!=4){
-      wait(600,msec);
-      if(counter ==0){
-      targetA = 4;
-      Rotatedown.close();
-      }
-    }
-    if(autorun == true&& statechanger == 1){
-      currentState = loading46;
-      toggleState();
-    }
-    if(autorun == true&& statechanger == 2){
-      currentState = loading47;
-      toggleState();
-    }
-    if(autorun == true&& statechanger == 3){
-      currentState = idle;
-      toggleState();
-    }
+      counter = 1;
 
 
+    }
+    // if(counter == 20){
+    //   wait(100,msec);
+
+    //   targetA = 119.5;
+
+    // }
+    // if (counter == 0&&targetA!=4){
+    //   wait(600,msec);
+    //   if(counter ==0){
+    //   targetA = 4;
+    //   Rotatedown.close();
+    //   }
+    // }
+    // if(autorun == true&& statechanger == 1){
+    //   currentState = loading46;
+    //   toggleState();
+    // }
+    // if(autorun == true&& statechanger == 2){
+    //   currentState = loading47;
+    //   toggleState();
+    // }
+    // if(autorun == true&& statechanger == 3){
+    //   currentState = idle;
+    //   toggleState();
+    // }
+
+    prevApos = Arm.position(deg);
 }
 void idle2(){
   
@@ -1265,10 +1235,10 @@ void liftControl() {
   // }
     
 
-    LArm.spin(fwd, -Aspeed, volt);
-    RArm.spin(fwd, -Aspeed, volt);
-    LeftArm.spin(fwd, -speed, pct);
-    RightArm.spin(fwd, -speed, pct);
+    LArm.spin(fwd, Aspeed, volt);
+    RArm.spin(fwd, Aspeed, volt);
+    // LeftArm.spin(fwd, -speed, pct);
+    // RightArm.spin(fwd, -speed, pct);
     Alasterror = Aerror;
     prevtargetL = targetL;
 }
@@ -1476,39 +1446,33 @@ void Toggle(){
 }
 
 void LIFTWork(){
-// if(counter == 0){
-//   clamp.set(false);
-//   currentState = loading44;
-//   toggleState();
-// }else if(counter == 26){
-//   clamp.set(true);
-//   wait(500,msec);
+if(counter == 1){
+  clamp.set(false);
+  currentState = idle;
+  toggleState();
+  wait(1000,msec);
+  counter = 0;
+  
 
-//   currentState = idle;
-//   toggleState();
-//   kyle = true;
-//   kyle = false;
-// }else{
-//   clamp.set(!clamp.value());
-// }
+}
+else{
   clamp.set(!clamp.value());
+}
 
 
 
   }
 void position(){
-  flip = false;
+  backside = false;
 }
 
 void position2(){
-  flip = true;
-}
-void position3(){
-  backside = false;
-}
-void position4(){
   backside = true;
 }
+void position3(){
+  flip = !flip;
+}
+
 void AntlerDEscore(){
 
     Rotatedown.set(!Rotatedown.value());
@@ -2818,13 +2782,13 @@ void pre_auton(void)
   drawGUI();
   Brain.Screen.pressed(selectAuton);
   vex::thread intakeThread(intakeControl);
-  // vex::thread states(loop);
+  vex::thread states(loop);
 
 
 
     {
 while (true) {
-  // liftControl();
+  liftControl();
  Brain.Screen.printAt(1, 20, "Gyro Rotation: %f", Gyro.rotation());
 wait(10, msec);
 } };
@@ -2854,16 +2818,16 @@ void usercontrol(void)
     //trollol lol 
     AIVision1.tagDetection(true);
     Controller.ButtonA.pressed(LIFTWork);
-    // Controller.ButtonUp.pressed(position);
-    // Controller.ButtonRight.pressed(position2);
-    // Controller.ButtonLeft.pressed(position3);
+    Controller.ButtonDown.pressed(position);
+    Controller.ButtonB.pressed(position2);
+    Controller.ButtonY.pressed(position3);
 
 
 
     // Controller.ButtonX.pressed(Toggle);
     // Controller.ButtonL2.pressed(doubleToggle); 
     // Controller.ButtonL1.pressed(toggleState); 
-    Controller.ButtonB.pressed(AntlerDEscore); 
+    Controller.ButtonRight.pressed(AntlerDEscore); 
     // Controller.ButtonB.pressed(abc);
   
     // Controller.ButtonDown.pressed(Align);  
@@ -2888,27 +2852,42 @@ void usercontrol(void)
 
     acuracy = 1.8;
     Gyro.setRotation(0,deg);
-
+    bool Lfwd = false;
+    double speed = 0;
+    double time =0;
     while (true)
     {
       if(Controller.ButtonL1.pressing()){
 
         LeftArm.spin(fwd,100,pct);
         RightArm.spin(fwd,100,pct);
-
+        toggleState();
+          back = false;
 
       }else if (Controller.ButtonL2.pressing()){
         if (LeftArm.position(deg)<=10){
         LeftArm.stop(hold);
         RightArm.stop(hold);
-        }else{
-        LeftArm.spin(reverse,100,pct);
-        RightArm.spin(reverse,100,pct);
-        }
+          back = false;
 
+        currentState = idle;
+        toggleState();
+        }else{
+        LeftArm.spin(reverse,60,pct);
+        RightArm.spin(reverse,60,pct);
+        
+          back = true;
+          Lfwd = false;
+        }
       }else{
+
         LeftArm.stop(hold);
         RightArm.stop(hold);
+          back = false;
+
+
+
+  
 
       }
       // if(Controller.ButtonL2.pressing()){
@@ -2926,19 +2905,19 @@ void usercontrol(void)
       //   LArm.spin(reverse,0.5,pct);
       //   RArm.spin(reverse,0.5,pct);
       // // }
-      if(Controller.ButtonX.pressing()){
-        LArm.spin(fwd,100,pct);
-        RArm.spin(fwd,100,pct);
+      // if(Controller.ButtonX.pressing()){
+      //   LArm.spin(fwd,100,pct);
+      //   RArm.spin(fwd,100,pct);
 
-      }else if (Controller.ButtonY.pressing()){
-        LArm.spin(reverse,100,pct);
-        RArm.spin(reverse,100,pct);
+      // }else if (Controller.ButtonY.pressing()){
+      //   LArm.spin(reverse,100,pct);
+      //   RArm.spin(reverse,100,pct);
 
-      }else{
-        LArm.stop(hold);
-        RArm.stop(hold);
+      // }else{
+      //   LArm.stop(hold);
+      //   RArm.stop(hold);
 
-      }
+      // }
     if(height == true){
       Controller.Screen.setCursor(5, 0);
       Controller.Screen.print("Height: True");

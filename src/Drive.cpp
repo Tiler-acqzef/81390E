@@ -39,10 +39,10 @@ rotation Arm = rotation(PORT9,true);
 rotation odomX = rotation(PORT21); 
 rotation odomY = rotation(PORT21); 
 
-pneumatics clamp(Brain.ThreeWirePort.A);
+pneumatics clamp(Brain.ThreeWirePort.B);
 pneumatics doinkerR(Brain.ThreeWirePort.H);
 pneumatics RotateUP (Brain.ThreeWirePort.H);
-pneumatics Rotatedown (Brain.ThreeWirePort.B);
+pneumatics Rotatedown (Brain.ThreeWirePort.A);
 inertial Gyro = inertial(PORT16);
 optical OpticalSensor = optical(PORT21);
 vex::aivision AIVision1(PORT21, aivision::ALL_AIOBJS);
