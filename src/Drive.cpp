@@ -33,7 +33,7 @@ distance Fsensor = (PORT5);
 distance Ssensor = (PORT4);
 distance Ssensor2 = (PORT14);
 
-rotation lift = rotation(PORT16,true);
+rotation lift = rotation(PORT21,true);
 
 rotation Arm = rotation(PORT9,true);
 rotation odomX = rotation(PORT21); 
