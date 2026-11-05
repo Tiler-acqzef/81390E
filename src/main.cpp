@@ -104,7 +104,7 @@ double counter = 0;
 bool backside = false;
 
 double targetL = 5.0;
-double targetA = 10;
+double targetA = 8;
 double targetAA = 5;
 
 float cap = 100;
@@ -196,7 +196,7 @@ void toggleState() {
             Aki = 0.0;
             Rotatedown.close();
 
-            targetA = 10;
+            targetA = 6;
           
 
 
@@ -228,7 +228,7 @@ void toggleState() {
             cap = 65;
 
 
-            targetA = 10;
+            targetA = 8;
 
             Controller.rumble(".");
             
@@ -1107,13 +1107,13 @@ void idlePosition(){
     //   counter = 0; 
     //   wait(1000,msec);
     // }
-    if(clawSensor.objectDistance(inches)<=acuracy&&counter==0&&back != true){
+    if(clawSensor.objectDistance(inches)<=acuracy&&counter==90&&back != true){
       clamp.set(true);
       wait(200,msec);
       currentState = loading5;
       toggleState();
-      wait(100,msec);
-      counter = 1;
+      wait(200,msec);
+      counter = 91;
 
 
     }
@@ -1446,18 +1446,17 @@ void Toggle(){
 }
 
 void LIFTWork(){
-if(counter == 1){
+if(counter == 91){
   clamp.set(false);
+  wait(500,msec);
+
   currentState = idle;
   toggleState();
-  wait(1000,msec);
-  counter = 0;
   
 
 }
 else{
   clamp.set(!clamp.value());
-  counter = 0;
 
 }
 
@@ -2922,13 +2921,21 @@ void usercontrol(void)
       //   RArm.stop(hold);
 
       // }
-    if(height == true){
+    if(backside == true){
       Controller.Screen.setCursor(5, 0);
-      Controller.Screen.print("Height: True");
+      Controller.Screen.print("Back: True");
     }
     else{
       Controller.Screen.setCursor(5, 0);
-      Controller.Screen.print("Height: False");
+      Controller.Screen.print("Back: False");
+    }
+    if(counter == 91){
+      Controller.Screen.setCursor(1, 0);
+      Controller.Screen.print("Idle");
+    }
+    else{
+      Controller.Screen.setCursor(1, 0);
+      Controller.Screen.print("Not Idle");
     }
 
     // if(Controller.ButtonUp.pressing()){
