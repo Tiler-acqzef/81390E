@@ -2487,7 +2487,7 @@ void autonomous(void)
     Akp = 0.15;
     Akd = 0.55;
     gyroTurnF(-90,1,0.5,1500);
-    inchDriveCW(-25, 1500, 1, 20, 0, 16.4, 1, -90);
+    inchDriveCW(-25, 1500, 0.8, 20, 0, 15.8, 1, -90);
     DriveBrake();
     doubleToggle();
     gyroTurnF(-90,1,0.5,500);
@@ -2507,7 +2507,7 @@ void autonomous(void)
     toggleState();
     TTP(-22,-12,1000000,180);
 
-    inchDriveCW(-32, 1500, 1, 20, 0, 17, 1, -90);
+    inchDriveCW(-32, 1500, 0.8, 20, 0, 16, 1, -90);
     
 
     wait(300,msec);
@@ -2529,7 +2529,7 @@ void autonomous(void)
     Akp = 0.15;
     TTP(-22,-12.5,1000000,180);
 
-    inchDriveCW(-30, 1500, 1, 20, 0, 16.4, 1, -90);
+    inchDriveCW(-30, 1500, 0.8, 20, 0, 15.5, 1, -90);
     inchDriveC(2,150,0.8,60);
     DriveBrake();
     doubleToggle();
@@ -2550,7 +2550,7 @@ void autonomous(void)
     Akp = 0.15;
     gyroTurnF(-90,1,0.5,1500);
 
-    inchDriveCW(-30, 1500, 1, 20, 0, 16, 1, -90);
+    inchDriveCW(-30, 1500, 0.6, 20, 0, 15.5, 1, -90);
     inchDriveC(2,150,0.8,60);
 
     DriveBrake();
@@ -2574,7 +2574,7 @@ void autonomous(void)
 
     gyroTurnF(-90,1,0.5,1500);
 
-    inchDriveCW(-32, 1500, 1, 20, 0, 16.4, 1, -90);
+    inchDriveCW(-32, 1500, 0.6, 20, 0, 15.5, 1, -90);
     inchDriveC(2,150,0.8,60);
     DriveBrake();
     doubleToggle();
