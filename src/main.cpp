@@ -254,7 +254,7 @@ void toggleState() {
 
 
 
-            targetA = 185;
+            targetA = 165;
 
             counter = 3;
             break; 
@@ -266,7 +266,7 @@ void toggleState() {
 
 
       
-            targetA = 97;
+            targetA = 93;
 
             counter = 4;
 
@@ -1107,7 +1107,7 @@ void idlePosition(){
     //   counter = 0; 
     //   wait(1000,msec);
     // }
-    if(clawSensor.objectDistance(inches)<=acuracy&&counter==0&&clamp.value()!=1&&back != true){
+    if(clawSensor.objectDistance(inches)<=acuracy&&counter==0&&back != true){
       clamp.set(true);
       wait(200,msec);
       currentState = loading5;
@@ -1457,6 +1457,8 @@ if(counter == 1){
 }
 else{
   clamp.set(!clamp.value());
+  counter = 0;
+
 }
 
 
@@ -2824,7 +2826,7 @@ void usercontrol(void)
 
 
 
-    // Controller.ButtonX.pressed(Toggle);
+    Controller.ButtonX.pressed(Toggle);
     // Controller.ButtonL2.pressed(doubleToggle); 
     // Controller.ButtonL1.pressed(toggleState); 
     Controller.ButtonRight.pressed(AntlerDEscore); 
@@ -2868,16 +2870,18 @@ void usercontrol(void)
         if (LeftArm.position(deg)<=10){
         LeftArm.stop(hold);
         RightArm.stop(hold);
-          back = false;
+        back = false;
 
-        currentState = idle;
-        toggleState();
+
         }else{
         LeftArm.spin(reverse,80,pct);
         RightArm.spin(reverse,80,pct);
-        
+          if(fabs(LeftArm.position(deg)<=20)){
+            back = false;
+          }else{
           back = true;
           Lfwd = false;
+          }
         }
       }else{
 
