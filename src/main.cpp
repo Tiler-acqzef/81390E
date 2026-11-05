@@ -228,7 +228,7 @@ void toggleState() {
             cap = 65;
 
 
-            targetA = 8;
+            targetA = 5;
 
             Controller.rumble(".");
             
@@ -2921,7 +2921,7 @@ void usercontrol(void)
       //   RArm.stop(hold);
 
       // }
-    if(backside == true){
+    if(flip == true){
       Controller.Screen.setCursor(5, 0);
       Controller.Screen.print("Back: True");
     }
@@ -2929,7 +2929,7 @@ void usercontrol(void)
       Controller.Screen.setCursor(5, 0);
       Controller.Screen.print("Back: False");
     }
-    if(counter == 91){
+    if(counter == 90){
       Controller.Screen.setCursor(1, 0);
       Controller.Screen.print("Idle");
     }
