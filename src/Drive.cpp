@@ -269,7 +269,7 @@ void inchDriveCW(float target, float timeLimit, float mspeed, float chainspeed, 
   float sideKp = 6;                 // deg of heading offset per inch of side error
   float minOffset = 2.5;            // deg, minimum offset so the robot actually turns
   float sideTol = 0.25;             // in, stop correcting inside this band
-  float maxOffset = 35;             // max heading offset (deg)
+  float maxOffset = 45;             // max heading offset (deg)
   float fadeDist = 4;               // fade offset out within this many inches of target
   int driveDir = (target >= 0) ? 1 : -1;
   float lastSide = sideTarget;      // used if a sensor read is bad
