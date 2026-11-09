@@ -196,7 +196,7 @@ void toggleState() {
             Aki = 0.0;
             Rotatedown.close();
 
-            targetA = 6;
+            targetA = 8;
           
 
 
@@ -1108,8 +1108,8 @@ void idlePosition(){
     //   wait(1000,msec);
     // }
     if(clawSensor.objectDistance(inches)<=acuracy&&counter==90&&back != true){
-      clamp.set(true);
-      wait(200,msec);
+      clamp.set(false);
+      wait(600,msec);
       currentState = loading5;
       toggleState();
       wait(200,msec);
@@ -1447,8 +1447,8 @@ void Toggle(){
 
 void LIFTWork(){
 if(counter == 91){
-  clamp.set(false);
-  wait(500,msec);
+  clamp.set(true);
+  wait(1000,msec);
 
   currentState = idle;
   toggleState();
@@ -2818,14 +2818,14 @@ void usercontrol(void)
     vex::thread odom(icc_tracking);
     //trollol lol 
     AIVision1.tagDetection(true);
-    Controller.ButtonA.pressed(LIFTWork);
-    Controller.ButtonDown.pressed(position);
-    Controller.ButtonB.pressed(position2);
+    Controller.ButtonB.pressed(LIFTWork);
+    Controller.ButtonLeft.pressed(position);
+    Controller.ButtonA.pressed(position2);
     Controller.ButtonY.pressed(position3);
 
 
 
-    Controller.ButtonX.pressed(Toggle);
+    Controller.ButtonDown.pressed(Toggle);
     // Controller.ButtonL2.pressed(doubleToggle); 
     // Controller.ButtonL1.pressed(toggleState); 
     Controller.ButtonRight.pressed(AntlerDEscore); 
