@@ -1307,7 +1307,7 @@ void MTP (float Tx, float Ty, double timeLimit){
 //   DriveBrake();
 
 // }
-void TTP(float Tx, float Ty, double timeLimit, double flip) {
+void TTP(float Tx, float Ty, double timeLimit, double flip,float acuracy) {
   float AKP = 6, AKD = 36, AKI = 0.5;
   float ASpeed = 0, intergal = 0;
   float Aerror = 0, Last_Aerror = 0;
@@ -1318,6 +1318,7 @@ void TTP(float Tx, float Ty, double timeLimit, double flip) {
   const int MAXLOG = 400;
   static float logE[MAXLOG], logU[MAXLOG];
   int logN = 0;
+
   timer timer;
 
   while (true) {
@@ -1357,7 +1358,7 @@ void TTP(float Tx, float Ty, double timeLimit, double flip) {
     drive(ASpeed, -ASpeed, 0);
     if (logN < MAXLOG) { logE[logN] = Aerror; logU[logN] = ASpeed; logN++; }
 
-    if (fabs(Aerror) <= 0.5 && fabs(dErr) < 0.15) counter++;
+    if (fabs(Aerror) <= acuracy && fabs(dErr) < 0.15) counter++;
     else counter = 0;
     if (counter >= 8) break;
     Last_Aerror = Aerror;

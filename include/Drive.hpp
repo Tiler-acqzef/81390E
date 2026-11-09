@@ -59,7 +59,7 @@ void offsetTest(float angle);
 
 int sign(float a);
 void MTP (float Tx, float Ty, double timeLimit);
-void TTP (float Tx, float Ty, double timeLimit,double flip =0);
+void TTP (float Tx, float Ty, double timeLimit,double flip =0,float acuracy = 0.5);
 
 void MTPB (float Tx, float Ty, double timeLimit, double Tspeed =100, double Mspeed = 0, double acuracy = 2.0);
 

@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =8;
+int AutonomousMode =4;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -1948,7 +1948,7 @@ void autonomous(void)
 
 
     inchDriveC(8,250,0.8,60);
-    gyroTurnF(25,1,0.2,550);    
+    gyroTurnF(25,1,1.8,550);    
     Akp = 0.15;
     Akd = 0.55;
 
@@ -1956,10 +1956,10 @@ void autonomous(void)
     ToggleLeft();
     clamp.open();
     inchDriveC3(20,400,0.6);
-    gyroTurnF(0,1,1,800);
+    gyroTurnF(0,1,1.5,800);
 
     toggleState();
-    Akp = 0.3;
+    Akp = 0.5;
     Akd = 1;
     Aki = 0;
 
@@ -1969,7 +1969,7 @@ void autonomous(void)
     currentState = idle;
     toggleState();
     acuracy = 2.8;
-    TTP(-22,-45,10000,180);
+    TTP(-22,-44.3,10000,180);
     inchDriveCE(-27,1100,0.6,10);
     currentState = loading21;
     toggleState();
@@ -1979,7 +1979,7 @@ void autonomous(void)
     doubleToggle();
 
     wait(300,msec);
-    gyroTurnF(180,1,0.7,800);
+    gyroTurnF(180,1,1.5,800);
     inchDriveC(14,1300,0.8,40);
     DriveBrake();
     currentState = idle;
@@ -1987,7 +1987,7 @@ void autonomous(void)
 
     acuracy = 2.30;
 
-    TTP(-45.4,-11,13000,180);
+    TTP(-47,-11,13000,180);
     inchDriveCE(-33,1500,0.8,10);
     currentState = loading31;
     toggleState();
@@ -2012,7 +2012,7 @@ void autonomous(void)
     x=0;
     y=0;
 
-     inchDriveC2(-22.3,1200,52,60,5,51,0,51);
+    inchDriveC2(-22.3,1200,52,60,5,51,0,51);
 
     Rotatedown.open();
     clamp.open();
@@ -2263,15 +2263,15 @@ void autonomous(void)
     inchDriveC(4,250,0.8,60);
     currentState = idle;
     toggleState();
-    TTP(-13.5,-0,1000000,180);
-    inchDriveC(-6,1000,0.6,40);
+    TTP(-13.5,-0,1000000,180,1);
+    inchDriveC(-6,900,1,40);
     arcturn3B(-5,180,900,true);
-    inchDriveC(-20,150,0.8,60);
-    gyroTurnF(90,1,0.5,1400);
+    inchDriveC(-20,250,0.8,60);
+    gyroTurnF(90,1,1,1400);
     currentState = loading31;
     toggleState();
     MTP(-2,-2,1500);
-    MTPB(29,-18,1500,80,10);
+    MTPB(29,-16,1500,80,10);
     doubleToggle();
     wait(300,msec);
     inchDriveC(5,250,1,80);
@@ -2280,12 +2280,15 @@ void autonomous(void)
     ToggleLeft();
     inchDriveC(17,500,1,80);
     toggleState();
+    Akp = 0.5;
+    Akd = 1;
+    Aki = 0;
     inchDriveC(-18,900,0.8,60);
     currentState = idle;
     toggleState();
     acuracy = 2.8;
-    TTP(-22,-44,10000,180);
-    inchDriveCE(-30,1100,0.6,10);
+    TTP(-22,-44.3,10000,180);
+    inchDriveCE(-35,1100,0.7,20);
     currentState = loading21;
     toggleState();
     MTPB(-20,-12,1200,50,35);
