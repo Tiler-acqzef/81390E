@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =4;
+int AutonomousMode =2;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -176,7 +176,7 @@ double Akd = 0.55;
 double Aki = 0.0;
 
 double kp = 10;
-double kd = 0;
+double kd = 10;
 bool height = false;
 state currentState = idle;
 
@@ -337,11 +337,12 @@ void toggleState() {
             break;             
         case low:
             currentState = middle;
+            counter = 4;
+
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 185;
-            counter = 4;
 
             // Controller.rumble("....");
             Akp = 0.15;
@@ -424,12 +425,13 @@ void toggleState() {
             break;
           case loading7:
           currentState = loading9;
+            counter = 7;
+
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
             Controller.rumble(".");
-            counter = 7;
 
             targetA = 300;
             targetL = 9.8;
@@ -449,6 +451,8 @@ void toggleState() {
             break;
           case loading9:
           currentState = idle;
+            counter = 8;
+
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
@@ -461,7 +465,6 @@ void toggleState() {
 
             wait(100,msec);
             Rotatedown.open();
-            counter = 8;
             break;
           case loading10:
           currentState = idle;
@@ -478,6 +481,8 @@ void toggleState() {
             break;
           case loading11:
             currentState = loading13;
+            counter = 9;
+
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
@@ -487,7 +492,6 @@ void toggleState() {
             targetA = 185;
             targetL = 5.0;
 
-            counter = 9;
             break;
             case loading12:
           currentState = idle;
@@ -613,11 +617,12 @@ void toggleState() {
             break;
           case loading21:
           currentState = loading23;
+            counter = 14; 
+
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
-            counter = 14; 
 
 
             Controller.rumble("..");
@@ -653,7 +658,7 @@ void toggleState() {
             Akp = 0.2;
             Akd = 0.75;
             Aki = 0.00;
-            inchDriveC3(1.8,400,1);
+            inchDriveC3(1.8,410,1);
             DriveBrake();
             targetA = 88.5;
             targetL = 5;
@@ -662,12 +667,13 @@ void toggleState() {
             break;
             case loading25:
             currentState = loading27;
+            counter = 16;
+
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
             Controller.rumble("....");
-            counter = 16;
             targetL = 5.0;
             targetA = 130;
 
@@ -735,16 +741,17 @@ void toggleState() {
             clamp.open();
             break;
           case loading31:
+            counter = 19;
+
           currentState = loading33;
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
             Controller.rumble(".");
-            counter = 19;
 
-            targetA = 14;
-            targetL = 15.8;
+            targetA = 10;
+            targetL = 15.7;
             if(Rotatedown.value()==1){
               wait(100,msec);
               Rotatedown.close();
@@ -778,7 +785,7 @@ void toggleState() {
             Akp = 0.15;
             Akd = 0.75;
             Aki = 0.00;
-            inchDriveC3(2,400,1);
+            inchDriveC3(1.8,400,1);
             DriveBrake();
             targetA = 80.5;
             targetL = 5;
@@ -787,6 +794,8 @@ void toggleState() {
             break;
           case loading35:
           currentState = loading37;
+            counter = 21;
+
             LeftArm.setVelocity(100,pct);
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
@@ -795,10 +804,9 @@ void toggleState() {
             Akp = 0.15;
             Akd = 0.75;
 
-            targetA = 149;
+            targetA = 146;
             targetL = 5.00;
 
-            counter = 21;
             break;
             case loading36:
           currentState = idle;
@@ -806,6 +814,7 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
+            Akp = 0.07;
 
             targetA = 120;
             wait(100,msec);
@@ -834,6 +843,8 @@ void toggleState() {
             cap = 65;
             targetL = 10.90;
             targetA = 120;
+            Akp = 0.07;
+
             wait(100,msec);
             Rotatedown.open();
             clamp.open();
@@ -945,7 +956,7 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 65;
             targetL = 5.0;
-            targetA = 19;
+            targetA = 14;
             Rotatedown.close();
             counter = 26;
 
@@ -1192,7 +1203,7 @@ void liftControl() {
     float kp2 = 0.09;
     float kd2 = 0.00;
     if(targetL != 5){
-    error = (targetL-1.2) - x;
+    error = (targetL+1.2) - x;
     speed = error * kp+kd*(error-lasterror)+ kg;
     }else{
     error = 0-lift.position(deg);
@@ -1256,6 +1267,7 @@ void liftControl() {
       // }else if (AX<=)
     }
   }
+
   // if(targetL != prevtargetL){
   //   if(fabs(error)<=0.5){
   //     if(liftSensor.changed());
@@ -1265,8 +1277,13 @@ void liftControl() {
 
     LArm.spin(fwd, -Aspeed, volt);
     RArm.spin(fwd, -Aspeed, volt);
+    if(fabs(speed)>=5){
     LeftArm.spin(fwd, -speed, pct);
     RightArm.spin(fwd, -speed, pct);
+    }else{
+      LeftArm.stop(hold);
+      RightArm.stop(hold);
+    }
     Alasterror = Aerror;
     prevtargetL = targetL;
 }
@@ -1987,7 +2004,7 @@ void autonomous(void)
 
     acuracy = 2.30;
 
-    TTP(-47,-11,13000,180);
+    TTP(-47,-12,13000,180);
     inchDriveCE(-33,1500,0.8,10);
     currentState = loading31;
     toggleState();
@@ -2722,11 +2739,8 @@ void autonomous(void)
 } 
 void abc(){
   wait(200,msec);
-  if(Controller.ButtonDown.pressing()){
     ToggleLeft();
-  } else{
-    ToggleRight();
-  }
+  
 }
 void pre_auton(void)
 {

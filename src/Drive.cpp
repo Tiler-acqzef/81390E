@@ -572,9 +572,9 @@ void inchDriveC3(float target, float timeLimit, float mspeed,bool chained, doubl
   float heading = 0;
   float angle_error = 0;
   float angle_last_error = 0;
-  float angleP = 2;
+  float angleP = 0;
   float turn_speed = 0;
-  float angleD = 0.2;
+  float angleD = 0;
   float aacuracy = 0.5; 
   float prevposition = ((RightFront.position(rev)+RightBack.position(rev))/2);
   float x = (((RightFront.position(rev)+RightBack.position(rev))/2) - prevposition) * pi * dia * gearRatio;
