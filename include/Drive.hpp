@@ -47,7 +47,7 @@ void inchDriveCW(float target, float timeLimit, float mspeed, float chainspeed, 
 
 void MTPTPTP(float Tx1, float Ty1, bool reverse1, float Tx2, float Ty2, bool reverse2, float Tx3, float Ty3, bool reverse3,float timeLimit, double mspeed, float switchDist1, float statechanger1, float switchDist2, float statechanger2, float accuracy);
 
-void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed = 40,double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
+void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed = 40,bool TS = true, double target2 = Gyro.rotation(), double target3 = Gyro.rotation(), int c = 0);
 void inchDriveC3(float target, float timeLimit, float mspeed,bool chained = false, double target2 = Gyro.rotation());
 void inchDriveCD(float target, float timeLimit, float mspeed, float chainspeed,float sideTarget = -1, int wallDir = 1);
 

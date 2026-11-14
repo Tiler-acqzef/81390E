@@ -405,7 +405,7 @@ void inchDriveD(float target, float timeLimit, float mspeed, float chainspeed, d
     // std::cout << x << std::endl;
   }
 }
-void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, double target2 , double target3 , int c ){
+void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed,bool TS, double target2 , double target3 , int c ){
   float heading = 0;
   float angle_error = 0;
   float angle_last_error = 0;
@@ -470,7 +470,9 @@ void inchDriveC(float target, float timeLimit, float mspeed, float chainspeed, d
     }
     }
     std::cout << error << std::endl;
-
+    if(TS == false){
+      turn_speed = 0;
+    }
 
     drive(mspeed*(speed+turn_speed), mspeed*(speed-turn_speed), 10);
     last_error = error;
