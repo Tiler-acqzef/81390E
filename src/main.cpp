@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =2;
+int AutonomousMode =8;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -195,6 +195,7 @@ void toggleState() {
             Akd = 0.55;
             Aki = 0.0;
             targetL = 5.0;
+            wait(100,msec);
       targetA = 4;
       Rotatedown.close();
           
@@ -755,7 +756,7 @@ void toggleState() {
             cap = 65;
             Controller.rumble(".");
 
-            targetA = 10;
+            targetA = 7;
             targetL = 15.7;
             if(Rotatedown.value()==1){
               wait(100,msec);
@@ -806,7 +807,7 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 65;
             Controller.rumble("...");
-            Akp = 0.15;
+            Akp = 0.1;
             Akd = 0.75;
 
             targetA = 146;
@@ -834,6 +835,8 @@ void toggleState() {
             cap = 65;
             Controller.rumble("....");
             counter = 22;
+            Akp = 0.1;
+            Akd = 0.75;
             targetL = 12.3;
 
             targetA = 145;
@@ -1020,7 +1023,7 @@ void toggleState() {
             Akd = 0.55;
             Aki = 0.0;
             counter = 29;
-            targetA = 233;
+            targetA = 231;
             targetL = 5;
             counter = 29;
 
@@ -1067,7 +1070,7 @@ void toggleState() {
             Akp = 0.2;
             Akd = 0.75;
             Aki = 0.00;
-            inchDriveC3(3,300,1);
+            inchDriveC(5,400,1,20,false);
             DriveBrake();
             targetA = 85.5;
             targetL = 5;
@@ -1277,9 +1280,9 @@ void liftControl() {
   //   }
   // }
     
-
     LArm.spin(fwd, -Aspeed, volt);
     RArm.spin(fwd, -Aspeed, volt);
+
     if(fabs(speed)>=5){
     LeftArm.spin(fwd, -speed, pct);
     RightArm.spin(fwd, -speed, pct);
@@ -2527,11 +2530,14 @@ void autonomous(void)
     toggleState();
     Akp = 0.0;
     Akd = 0.0;
+    acuracy = 2.0;
   
     x=0;
     y=0;
 
-     inchDriveC2(-21.3,1200,52,60,5,53.5,0,53.5);
+    inchDriveC2(-22.3,1200,52,60,5,51,0,51);
+
+    Rotatedown.open();
     clamp.open();
     wait(300,msec);
 
@@ -2566,7 +2572,7 @@ void autonomous(void)
     MTPB(-28,-28,1200,50,35);
     doubleToggle();
 
-    acuracy = 2.30;
+    acuracy = 2.50;
 
     TTP(-47,-11,13000,180);
     inchDriveCE(-30,1500,0.6,10);
@@ -2580,7 +2586,7 @@ void autonomous(void)
     doubleToggle();
     gyroTurnF(-90,1,0.5,500);
 
-    inchDriveDF(7.5,1000,1,40);
+    inchDriveDF(7,1000,1,40);
 
     acuracy = 2.0;
 
@@ -2595,7 +2601,7 @@ void autonomous(void)
     toggleState();
     TTP(-22,-12,1000000,180);
 
-    inchDriveCW(-32, 1500, 0.6, 20, 0, 16, 1, -90);
+    inchDriveCW(-32, 1500, 0.6, 20, 0, 16.5, 1, -90);
     
 
     wait(300,msec);
@@ -2620,11 +2626,13 @@ void autonomous(void)
     TTP(-22,-12.5,1000000,180);
 
     inchDriveCW(-30, 1500, 0.8, 20, 0, 15.5, 1, -90);
+    inchDriveC(2,250,0.6,40);
     DriveBrake();
+
     doubleToggle();
     wait(300,msec);
     gyroTurnF(-90,1,0.5,500);
-    inchDriveDF(8.5,1000,1,40);
+    inchDriveDF(7,1000,1,40);
     acuracy = 2.0;
 
     currentState = idle;
@@ -2640,6 +2648,7 @@ void autonomous(void)
     gyroTurnF(-90,1,0.5,1500);
 
     inchDriveCW(-30, 1500, 0.6, 20, 0, 15.5, 1, -90);
+    inchDriveC(2,250,0.6,40);
 
     DriveBrake();
     wait(100,msec);
@@ -2647,7 +2656,7 @@ void autonomous(void)
     doubleToggle();
     wait(300,msec);
     gyroTurnF(-90,1,0.5,500);
-    inchDriveDF(8.5,1000,1,40);
+    inchDriveDF(7,1000,1,40);
     acuracy = 2.0;
 
     currentState = idle;
@@ -2665,18 +2674,23 @@ void autonomous(void)
     gyroTurnF(-90,1,0.5,900);
 
     inchDriveCW(-32, 1500, 0.6, 20, 0, 15.5, 1, -90);
+    inchDriveC(3,250,0.6,40);
+    DriveBrake();
+
     DriveBrake();
     wait(300,msec);
 
     doubleToggle();
     wait(300,msec);
     gyroTurnF(-90,1,0.5,500);
+    acuracy = 0;
     currentState = idle;
     toggleState();
     inchDriveDF(7,1000,1,40);
 
 
     gyroTurnF(180,1.0,0.2,1500);
+    acuracy = 2.0;
     inchDriveD(1.6,1000,1,40);
     wait(100,msec);
     inchDriveC(5,500,1,60);
@@ -2689,7 +2703,7 @@ void autonomous(void)
 
     DriveBrake();
     doubleToggle();
-    wait(200,msec);
+    inchDriveC(2,50,0.6,40);
 
 
    inchDriveC(-5,500,1,60);
@@ -2724,12 +2738,12 @@ void autonomous(void)
     currentState = idle;
     toggleState();
    gyroTurnF(-90,1,0.5);
-  inchDriveDF(8,1000,1,40);
+  inchDriveDF(7.5,1000,1,40);
 
     
 
     gyroTurnF(180);
-    MTP(-54,-50,2400);
+    MTP(-54,-50,1300);
     gyroTurnF(-90);
     ToggleLeft();
     toggleState();
