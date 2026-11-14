@@ -730,7 +730,7 @@ void toggleState() {
             Controller.rumble("......");
 
             targetA = 139;
-            targetL = 16.4;
+            targetL = 17;
             wait(100,msec);
             Rotatedown.open();
             counter = 18;
