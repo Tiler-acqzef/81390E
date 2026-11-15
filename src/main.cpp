@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =8;
+int AutonomousMode =4;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -793,7 +793,7 @@ void toggleState() {
             Aki = 0.00;
             inchDriveC3(1.8,400,1);
             DriveBrake();
-            targetA = 80.5;
+            targetA = 90.5;
             targetL = 5;
             wait(100,msec);
             clamp.open();
@@ -1512,7 +1512,7 @@ if(counter == 0&&clamp.value()!=0){
 }else{
   counter = 10000;
   clamp.set(!clamp.value());
-  wait(500,msec);
+  wait(900,msec);
   counter = 0;
 
 }
@@ -1997,7 +1997,7 @@ void autonomous(void)
     toggleState();
     acuracy = 2.8;
     TTP(-22,-44.3,10000,180);
-    inchDriveCE(-27,1100,0.6,10);
+    inchDriveCE(-32,1100,0.6,10);
     currentState = loading21;
     toggleState();
     MTPB(-20,-12,1200,50,35);
@@ -2014,7 +2014,7 @@ void autonomous(void)
 
     acuracy = 2.30;
 
-    TTP(-47,-12,13000,180);
+    TTP(-47.5,-12,13000,180);
     inchDriveCE(-33,1500,0.8,10);
     currentState = loading31;
     toggleState();
@@ -2287,11 +2287,14 @@ void autonomous(void)
 
 
 
-    inchDriveC(4,250,0.8,60);
+    inchDriveC(5,250,0.8,60);
+
     currentState = idle;
     toggleState();
-    TTP(-13.5,-0,1000000,180,1);
-    inchDriveC(-6,900,1,40);
+    clamp.open();
+
+    TTP(-13.5,-2,1000000,180,1);
+    inchDriveC(-8,900,1,40);
     arcturn3B(-5,180,900,true);
     inchDriveC(-20,250,0.8,60);
     gyroTurnF(90,1,1,1400);
@@ -2304,28 +2307,32 @@ void autonomous(void)
     inchDriveC(5,250,1,80);
 
     gyroTurnF(0,1,0.5,1000);
-    ToggleLeft();
-    inchDriveC(17,500,1,80);
-    toggleState();
-    Akp = 0.5;
-    Akd = 1;
-    Aki = 0;
-    inchDriveC(-18,900,0.8,60);
-    currentState = idle;
-    toggleState();
-    acuracy = 2.8;
-    TTP(-22,-44.3,10000,180);
-    inchDriveCE(-35,1100,0.7,20);
-    currentState = loading21;
-    toggleState();
-    MTPB(-20,-12,1200,50,35);
+    inchDriveC(30,1000,1,80);
+    inchDriveC(-5,200,1,80);
+    inchDriveC(10,1000,1,80);
+    inchDriveC(-5,1000,1,80);
     DriveBrake();
-    wait(200,msec);
-    doubleToggle();
 
-    wait(300,msec);
 
+    // Akp = 0.5;
+    // Akd = 1;
+    // Aki = 0;
+    // inchDriveC(-18,900,0.8,60);
+    // currentState = idle;
+    // toggleState();
+    // acuracy = 2.8;
+    // TTP(-22,-44.3,10000,180);
+    // inchDriveCE(-35,1100,0.7,20);
+    // currentState = loading21;
+    // toggleState();
+    // MTPB(-20,-12,1200,50,35);
+    // DriveBrake();
+    // wait(200,msec);
     // doubleToggle();
+
+    // wait(300,msec);
+
+    // // doubleToggle();
 
 
 
@@ -2610,7 +2617,7 @@ void autonomous(void)
     wait(200,msec);
 
     gyroTurnF(-90,1,0.5,500);
-    inchDriveDF(7.5,1000,1,40);
+    inchDriveDF(7,1000,1,40);
     acuracy = 2.0;
 
     currentState = idle;
@@ -2648,7 +2655,6 @@ void autonomous(void)
     gyroTurnF(-90,1,0.5,1500);
 
     inchDriveCW(-30, 1500, 0.6, 20, 0, 15.5, 1, -90);
-    inchDriveC(2,250,0.6,40);
 
     DriveBrake();
     wait(100,msec);
@@ -2703,7 +2709,7 @@ void autonomous(void)
 
     DriveBrake();
     doubleToggle();
-    inchDriveC(2,50,0.6,40);
+    inchDriveC(2,150,0.6,40);
 
 
    inchDriveC(-5,500,1,60);
@@ -2732,6 +2738,8 @@ void autonomous(void)
     DriveBrake();
     doubleToggle();
     DriveBrake();
+    wait(200,msec);
+ 
 
 
    inchDriveC(-5,500,1,60);
