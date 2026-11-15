@@ -1164,7 +1164,7 @@ void idlePosition(){
     }
     if(counter == 0 && clawSensor.objectDistance(inches)<=acuracy&&clamp.value() == 1){
       clamp.set(false);
-      wait(300,msec);
+      wait(100,msec);
       currentState = loading44;
       toggleState();
 
