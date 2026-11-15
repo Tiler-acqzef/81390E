@@ -21,32 +21,32 @@ motor RArm = motor(PORT7,ratio18_1,false);
 // motor RightBack   = motor(PORT4, ratio6_1, false); bajBRWuab meow
 
 motor LeftFront = motor(PORT11, ratio6_1, true); //11
-motor LeftMiddle = motor(PORT21, ratio18_1, true); //12
+motor LeftMiddle = motor(PORT19, ratio18_1, true); //12
 motor LeftBack = motor(PORT12, ratio6_1, true); //13
-motor Outake = motor(PORT21,ratio6_1,false);
+motor Outake = motor(PORT19,ratio6_1,false);
 motor RightFront = motor(PORT1, ratio6_1, false); //1
-motor RightMiddle = motor(PORT21, ratio18_1, false); //4
+motor RightMiddle = motor(PORT19, ratio18_1, false); //4
 motor RightBack = motor(PORT2, ratio6_1, false); //14
-distance liftSensor = (PORT21);
-distance clawSensor = (PORT10);
+distance liftSensor = (PORT19);
+distance clawSensor = (PORT21);
 distance Fsensor = (PORT5);
 distance Ssensor = (PORT4);
 distance Ssensor2 = (PORT14);
 
-rotation lift = rotation(PORT21,true);
+rotation lift = rotation(PORT19,true);
 
 rotation Arm = rotation(PORT9,true);
-rotation odomX = rotation(PORT21); 
-rotation odomY = rotation(PORT21); 
+rotation odomX = rotation(PORT17); 
+rotation odomY = rotation(PORT20); 
 
 pneumatics clamp(Brain.ThreeWirePort.B);
 pneumatics doinkerR(Brain.ThreeWirePort.H);
 pneumatics RotateUP (Brain.ThreeWirePort.H);
 pneumatics Rotatedown (Brain.ThreeWirePort.A);
 inertial Gyro = inertial(PORT16);
-optical OpticalSensor = optical(PORT21);
-vex::aivision AIVision1(PORT21, aivision::ALL_AIOBJS);
-gps GPS = gps(PORT21);
+optical OpticalSensor = optical(PORT19);
+vex::aivision AIVision1(PORT19, aivision::ALL_AIOBJS);
+gps GPS = gps(PORT19);
 float pi = 3.14159;
 float dia = 2;
 float diaO = 2;
@@ -904,6 +904,12 @@ void arcturn(float target, float arcdegree, float timeLimit, int b , int c )
   DriveBrake();
 }
 
+// Tracking wheel offsets from the center of rotation (same units as dia, e.g. inches)
+// fwdWheelOffset:    lateral position of the forward-measuring wheel (odomX).  + = right of center
+// strafeWheelOffset: longitudinal position of the strafe wheel (odomY).        + = ahead of center
+const float fwdWheelOffset    = 0.0;   // <-- measure these
+const float strafeWheelOffset = 4.0;
+
 void icc_tracking() {
 
     float prevHeading = Gyro.rotation() * pi / 180.0;
@@ -931,26 +937,27 @@ void icc_tracking() {
         while (dTheta < -pi)
             dTheta += 2 * pi;
 
+        // Remove the distance each wheel travelled purely because of rotation.
+        // Clockwise turn: a wheel on the right moves backward, a wheel ahead of center moves right.
+        distance           += fwdWheelOffset    * dTheta;
+        horizontalDistance -= strafeWheelOffset * dTheta;
+
         if (fabs(dTheta) > kThetaEpsilon) {
 
-            float R = distance / dTheta;
+            float R  = distance / dTheta;
             float Rs = horizontalDistance / dTheta;
 
-            // forward (arc) contribution
             x -= R * (cos(heading) - cos(prevHeading));
             y -= R * (sin(prevHeading) - sin(heading));
 
-            // strafe (arc) contribution — perpendicular to forward
             x += Rs * (sin(heading) - sin(prevHeading));
             y += Rs * (cos(heading) - cos(prevHeading));
 
         } else {
 
-            // forward (straight) contribution — sign corrected to match arc-branch limit
             x += distance * sin(heading);
             y += distance * cos(heading);
 
-            // strafe (straight) contribution
             x += horizontalDistance * cos(heading);
             y -= horizontalDistance * sin(heading);
 
@@ -1414,78 +1421,124 @@ void Align(){
 
 }
 }
-void gyroTurnF(float target, double mspeed , double accuracy,  int timeLimit, float b )
+void gyroTurnF(float target, double mspeed, double accuracy, int timeLimit, float b)
 {
-  float heading = 0.0; // initialize a variable for heading
-  double error = target - heading;
+  const int settleTime = 60;      // ms the robot must stay inside accuracy to finish
+  const double minSpeed = 16;     // full kick to break friction (used at 1.5 deg or more)
+  const double minKick = 8;       // smallest starting kick right next to the target
+  const double kickZone = 1.5;    // inside this, the starting kick scales down with distance
+  const double maxBoost = 14;     // kick can grow by this much while stalled
+  const double boostRate = 1.5;   // kick growth per loop while stalled
+  const double stallRate = 0.15;  // deg per loop below which the robot counts as stalled
+  const double integralMax = 150;
+  const double dFilter = 0.1;     // nearly raw, so braking isn't delayed
+  const double capBase = 18;      // approach speed limit = capBase + capSlope * |error|
+  const double capSlope = 3.0;
+  const double revBase = 8;       // braking (reverse) limit = revBase + revSlope * |error|
+  const double revSlope = 1.5;
+  const double coastZone = 1.5;   // inside this many degrees, no reverse output at all
+
+  double kp = 5;
   double ki = 0.2;
-  double intergal = 0;
+  double kd = 14;
 
-  double kp = 5; // 7.85;//was 6
+  // log buffer: samples are stored during the turn and printed afterward,
+  // so printing can't slow or garble the control loop
+  static double logE[400], logS[400];
+  int n = 0;
+
+  double heading = Gyro.rotation();
+  double error = target - heading;
+  double last_error = error;
+  double derivative = 0;
+  double integral = 0;
   double speed = 0;
-  double kd = 68; // 0.65;//was 0.3
-  double last_error = 0;
-  double dt = 0.01; // reset Gyro to zero degrees
-  int count = 0;
-  vex::timer timer; // Create a timer object
+  double boost = 0;
 
-  timer.clear(); // Clear any previous timer value
-  while (count <= 8)
+  vex::timer timer;
+  vex::timer settleTimer;
+  timer.clear();
+  settleTimer.clear();
+
+  while (timer.time(vex::timeUnits::msec) < timeLimit)
   {
-    heading = Gyro.rotation(); // measure the heading of the robot
+    heading = Gyro.rotation();
     error = target - heading;
 
-    if (error > 180)
+    if (error > 180) error -= 360;
+    else if (error < -180) error += 360;
+
+    double rawD = error - last_error;
+    derivative = dFilter * derivative + (1 - dFilter) * rawD;
+
+    // integral only near the target, reset on zero crossing, clamped
+    if (fabs(error) < 15 && fabs(error) > 0.25)
+      integral += error;
+    else
+      integral = 0;
+    if ((error > 0) != (last_error > 0)) integral = 0;
+    integral = fmax(-integralMax, fmin(integralMax, integral));
+
+    speed = kp * error + kd * derivative + ki * integral;
+
+    // approach cap: slower as the target gets closer
+    double cap = fmin(100, capBase + capSlope * fabs(error));
+    speed = fmax(-cap, fmin(cap, speed));
+
+    // braking limit: gentle when close, and none at all inside the coast zone
+    if (speed * error < 0)
     {
-      error = error - 360;
-    }
-    else if (error < -180)
-    {
-      error = error + 360;
+      if (fabs(error) < coastZone)
+      {
+        speed = 0;
+      }
+      else
+      {
+        double revCap = revBase + revSlope * fabs(error);
+        if (fabs(speed) > revCap)
+          speed = (speed > 0 ? 1 : -1) * revCap;
+      }
     }
 
-    if (fabs(error) < 15 && fabs(error) > 0.25)
+    // stall kick: starts smaller close to the target, grows the longer the robot sits still
+    bool stalled = fabs(rawD) < stallRate;
+    if (stalled && fabs(error) > accuracy)
+      boost = fmin(maxBoost, boost + boostRate);
+    else
+      boost = 0;
+
+    double startKick = minKick + (minSpeed - minKick) * fmin(1.0, fabs(error) / kickZone);
+    double kick = startKick + boost;
+    if (stalled && fabs(error) > accuracy && fabs(speed * mspeed) < kick)
+      speed = (error > 0 ? 1 : -1) * kick / mspeed;
+
+    drive(speed * mspeed, -speed * mspeed, 1);
+
+    if (n < 400) { logE[n] = error; logS[n] = speed; n++; }
+
+    // settle: stay inside the band for settleTime ms, otherwise restart the clock
+    if (fabs(error) <= accuracy)
     {
-      intergal += error;
+      if (settleTimer.time(vex::timeUnits::msec) >= settleTime)
+        break;
     }
     else
     {
-      intergal = 0;
+      settleTimer.clear();
     }
-
-    if (intergal >= 50)
-    {
-      intergal = 50;
-    }
-    else if (intergal <= -50)
-    {
-      intergal = -50;
-    }
-
-
-    speed = kp * error + kd * (error - last_error)  + ki * intergal;
-
-    drive(speed*mspeed, -speed*mspeed,1); // turn right at speed
-    std::cout << error << "\n";
 
     last_error = error;
-    if (fabs(error) <= accuracy + 0.3)
-    {
-      count++;
-    }
-    else
-      count = 0;
-
-    if (timer.time(vex::timeUnits::msec) >= timeLimit)
-    {
-      break;
-    }
+    vex::task::sleep(20);         // match the gyro update rate
   }
 
   DriveBrake();
-  std::cout << "newline" << "\n"; // stope the drive
-}
-void gyropivotR(float target, bool direction, double accuracy ,  int timeLimit, float b )  {
+
+  // print the whole log after the turn is done
+  for (int i = 0; i < n; i++)
+    std::cout << logE[i] << "," << logS[i] << "\n";
+  std::cout << "final error: " << error << "\n";
+  std::cout << "newline" << "\n";
+}void gyropivotR(float target, bool direction, double accuracy ,  int timeLimit, float b )  {
   float heading = Gyro.rotation(); // initialize a variable for heading
   double error = target - heading;
   double ki = 0.5;

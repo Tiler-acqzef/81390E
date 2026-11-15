@@ -3,7 +3,6 @@
 #include "vex.h"
 #include "Drive.hpp"
  
- bool a = false;
 
 //cmmnt
 bool isClosed = true;
@@ -175,9 +174,10 @@ double Akp = 0.15;
 double Akd = 0.55;
 double Aki = 0.0;
 
-double kp = 10;
+double kp = 0;
 double kd = 0;
 bool height = false;
+bool a = true;
 state currentState = idle;
 
 void toggleState() {
@@ -189,7 +189,7 @@ void toggleState() {
             Intake.setVelocity(100,pct);
             cap = 25;
             counter = 90;
-            kp = 10;
+            kp = 0;
             kd = 0;  
           Akp = 0.15;
             Akd = 0.55;
@@ -266,7 +266,7 @@ void toggleState() {
 
 
       
-            targetA = 93;
+            targetA = 105;
 
             counter = 4;
 
@@ -278,8 +278,9 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
-
-            targetA = 19;
+            Akp = 0.3;
+            Akd=0.55;
+            targetA = 18;
 
             counter = 9;
             Controller.rumble("...");
@@ -291,11 +292,14 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 65;
-            Akp = 0.05;
-            targetL = 13;
-            targetA = 265;
-
+            counter = 100;
+            kp = 0.5;
+            targetL = 225;
+            targetA = -8;
+            a = false;
             wait(150,msec);
+            Rotatedown.open();
+
             clamp.open();
         
             break;             
@@ -305,14 +309,14 @@ void toggleState() {
             RightArm.setVelocity(100,pct);
             Intake.setVelocity(100,pct);
             cap = 185;
-            counter = 4;
-
+            counter = 100;
+            a = true;
             // Controller.rumble("....");
             Akp = 0.15;
             Akd = 1.35;
             Rotatedown.close();
-          targetL = 5.0;
-          targetA = 160;
+            
+          targetA = 90;
             break;
         case low2:
             currentState = idle;
@@ -1060,7 +1064,7 @@ bool back = false;
 float acuracy = 1.8;
 float prevApos = Arm.position(deg);
 void idlePosition(){
-
+        if(a){
         if (!backside) {
           if (!flip) {
               currentState = loading;
@@ -1077,6 +1081,9 @@ void idlePosition(){
 
           }
       }
+    }else{
+      currentState = low;
+    }
     if(counter == 2&&Rotatedown.value() == 0){
         wait(400,msec);
         Rotatedown.open();
@@ -1161,15 +1168,12 @@ void liftControl() {
     }
     double error;
     double speed;
-    float kp2 = 0.09;
+    float kp2 = 0.0;
     float kd2 = 0.00;
-    if(targetL != 5){
-    error = targetL - x;
-    speed = error * kp+kd*(error-lasterror)+ kg;
-    }else{
-    error = 0-lift.position(deg);
-    speed = -1*(error*kp2+kd2*(error - lasterror));
-    }
+ 
+    error = targetL-LeftArm.position(deg);
+    speed = -1*(error*kp+kd*(error - lasterror));
+    
 
     double Akg = 0.0;
     double prevtargetL = 0;
@@ -1198,11 +1202,7 @@ void liftControl() {
       speed = 0;
 
     }
-    if(error<=0){
-      if(fabs(speed)>=40){
-        speed = -40;
-      }
-    }
+
     double Aspeed = Aerror * Akp+Akd*(Aerror-Alasterror)+ Aki *intergal;
       Brain.Screen.printAt(25,200,"error:%.2f",(error));
       Brain.Screen.printAt(25,225,"x:%.2f",(x));
@@ -1237,8 +1237,10 @@ void liftControl() {
 
     LArm.spin(fwd, Aspeed, volt);
     RArm.spin(fwd, Aspeed, volt);
-    // LeftArm.spin(fwd, -speed, pct);
-    // RightArm.spin(fwd, -speed, pct);
+    if(fabs(speed)>= 10){
+    LeftArm.spin(fwd, -speed, pct);
+    RightArm.spin(fwd, -speed, pct);
+    }
     Alasterror = Aerror;
     prevtargetL = targetL;
 }
@@ -1433,7 +1435,7 @@ void doubleToggle(){
   }
 }
 void ToggleRight(){
-  currentState = loading43;
+  currentState = loading6;
   toggleState();
 }
 void ToggleLeft(){
@@ -1782,7 +1784,7 @@ void autonomous(void)
   switch (AutonomousMode)
   { 
     case 0:
-    inchDriveDF(7,1500,1,0);
+    gyroTurnF(90);
     // drive(18,-18,10000);
     DriveBrake();
 
@@ -2484,11 +2486,12 @@ void autonomous(void)
     x=0;
     y=0;
 
-     inchDriveC2(-22.3,1200,52,60,5,47,0,47);
+    inchDriveC2(-22.3,1200,52,60,5,51,0,51);
 
     Rotatedown.open();
     clamp.open();
     wait(300,msec);
+
 
 
 
@@ -2822,6 +2825,7 @@ void usercontrol(void)
     Controller.ButtonLeft.pressed(position);
     Controller.ButtonA.pressed(position2);
     Controller.ButtonY.pressed(position3);
+    Controller.ButtonX.pressed(ToggleRight);
 
 
 
@@ -2859,7 +2863,7 @@ void usercontrol(void)
     while (true)
     {
       if(Controller.ButtonL1.pressing()){
-
+        kp= 0.0;
         LeftArm.spin(fwd,100,pct);
         RightArm.spin(fwd,100,pct);
         toggleState();
