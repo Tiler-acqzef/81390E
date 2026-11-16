@@ -12,7 +12,7 @@ double left_speed = 0;
 //go to gulags
 double right_speed = 0;
 int UserControlMode = 0;
-int AutonomousMode =4;
+int AutonomousMode =2;
 int AutonMin = 0;
 int AutonMax = 8;
 bool isred = true;
@@ -791,7 +791,7 @@ void toggleState() {
             Akp = 0.15;
             Akd = 0.75;
             Aki = 0.00;
-            inchDriveC3(1.8,400,1);
+            inchDriveC3(1.5,400,1);
             DriveBrake();
             targetA = 90.5;
             targetL = 5;
